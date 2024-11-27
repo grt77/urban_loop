@@ -5,4 +5,5 @@ import vue from '@vitejs/plugin-vue'
 export default defineConfig({
   plugins: [vue()],
   base: '/urban_loop/',
+  publicPath: process.env.NODE_ENV === 'production' ? '/urban_loop/' : '/',
 })
