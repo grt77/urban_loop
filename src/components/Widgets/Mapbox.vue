@@ -1,5 +1,5 @@
 <template>
-  <div id="map" style="width: 100%; height: 350px;"></div>
+  <div id="map" style="width: 100%; height: 250px;"></div>
 </template>
 
 <script>
@@ -89,12 +89,12 @@ export default {
           this.addRouteToMap(geojson);
 
           const bounds = new mapboxgl.LngLatBounds();
-          route.forEach(coord => bounds.extend(coord)); // Extend bounds to fit the route
+          route.forEach(coord => bounds.extend(coord));
 
           // Fit the map to the bounds
           this.map.fitBounds(bounds, {
-            padding: { top: 50, bottom: 50, left: 50, right: 50 }, // Add some padding for better visibility
-            maxZoom: 14, // Optionally limit the zoom level
+            padding: { top: 50, bottom: 50, left: 50, right: 50 },
+            maxZoom: 14,
           });
         } catch (error) {
           console.error('Error getting directions:', error);
@@ -102,7 +102,6 @@ export default {
       }
     },
 
-    // Function to add the route layer to the map
     addRouteToMap(routeGeojson) {
       // Remove previous routes if any
       if (this.map.getSource('route')) {
@@ -110,10 +109,9 @@ export default {
         this.map.removeSource('route');
       }
 
-      // Add new route source and layer
       this.map.addSource('route', {
         type: 'geojson',
-        data: routeGeojson, // Pass the valid GeoJSON object (this was the change)
+        data: routeGeojson,
       });
 
       this.map.addLayer({
@@ -132,18 +130,14 @@ export default {
     },
 
     pickCurrentLocation() {
-      // Check if geolocation is available
       if (this.mapInitialized) {
-              console.log(this.sourceCordinates, 'SOURCE_CORDINATES')
-              // Fly to the current location
               this.map.flyTo({
-                center: [this.sourceCordinates[0], this.sourceCordinates[1]], // Set the coordinates for the center
-                zoom: 14, // Adjust zoom to make sure it's closer to the current location
-                speed: 2, // Adjust speed of flyTo
-                curve: 1, // Smooth out the movement
+                center: [this.sourceCordinates[0], this.sourceCordinates[1]],
+                zoom: 14,
+                speed: 2,
+                curve: 1,
               });
 
-              // Add a marker at the current locat
             }
     }
   },
@@ -155,7 +149,7 @@ export default {
   margin-bottom: 20px;
 
   canvas {
-    height: 350px !important;
+    height: 250px !important;
     /* Adjusting height */
   }
 }
