@@ -11,6 +11,7 @@ import RideCompletion from '../components/Pages/User/RideCompletion.vue';
 import RideDecision from '../components/Pages/Driver/RideDecision.vue';
 import RideConfirmation from '../components/Pages/Driver/RideConfirmation.vue';
 import FinalFareCollection from '../components/Pages/Driver/FinalFareCollection.vue';
+import Login from '../components/Pages/Driver/Login.vue';
 
 const userRoutes = [
   {
@@ -22,6 +23,7 @@ const userRoutes = [
     path: '/fair-details',
     name: 'UserFairDetails',
     component: FairDetails,
+    meta: { requiresAuth: true }
   },
   {
     path: '/ride-confirmation-waiting',
@@ -41,6 +43,11 @@ const userRoutes = [
 ];
 
 const driverRoutes = [
+  {
+    path: '/driver/login',
+    name: 'DriverLogin',
+    component: Login,
+  },
   {
     path: '/driver/ride-decision',
     name: 'DriverRideDecision',

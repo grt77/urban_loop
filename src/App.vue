@@ -20,10 +20,10 @@ export default {
 .app {
   display: flex;
   align-items: center;
-  justify-conent: center;
+  justify-content: center;
   min-height: 90vh;
   background-color: #eaeaea;
   border-radius: 30px;
-  padding: 5px; /* Light grey background for the page */
+  padding: 5px;
 }
 </style>

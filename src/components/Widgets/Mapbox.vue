@@ -69,7 +69,6 @@ export default {
   methods: {
     async getRoute() {
       if (this.mapInitialized) {
-        // console.log(this.sourceCordinates, this.destinationCor)
         try {
           const query = await fetch(
             `${this.directionsServiceUrl}/${this.sourceCordinates[0]},${this.sourceCordinates[1]};${this.destinationCordinates[0]},${this.destinationCordinates[1]}?steps=true&geometries=geojson&access_token=${MAPBOX_ACCESS_TOKEN}`,
@@ -131,14 +130,14 @@ export default {
 
     pickCurrentLocation() {
       if (this.mapInitialized) {
-              this.map.flyTo({
-                center: [this.sourceCordinates[0], this.sourceCordinates[1]],
-                zoom: 14,
-                speed: 2,
-                curve: 1,
-              });
+            this.map.flyTo({
+              center: [this.sourceCordinates[0], this.sourceCordinates[1]],
+              zoom: 14,
+              speed: 2,
+              curve: 1,
+            });
 
-            }
+          }
     }
   },
 };

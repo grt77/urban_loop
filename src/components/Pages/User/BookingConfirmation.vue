@@ -4,12 +4,7 @@
       <h2>YOU ARE ON <span>FLASH RIDE</span></h2>
     </div>
     <div class="col-xs-12 map-container">
-      <map-box
-        :source-cordinates="sourceCordinates"
-        :destination-cordinates="destinationCordinates"
-        :place-current-location="placeCurrentLocation"
-        :place-destination-location="placeDestinationLocation"
-      />
+      <booking-map />
     </div>
     <div class="col-xs-12 estimates-travel">
       <div>Estimates Travel time 11 Mins</div>
@@ -39,12 +34,14 @@
 
 <script>
 import { images } from '../../../assets/images';
+import BookingMap from '../../Widgets/BookingMap.vue';
 import Mapbox from '../../Widgets/Mapbox.vue';
 
 export default {
   name: 'BookingConfirmation',
   components: {
     Mapbox,
+    BookingMap
   },
   data() {
     return {

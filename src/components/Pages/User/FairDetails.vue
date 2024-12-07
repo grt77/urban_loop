@@ -1,7 +1,7 @@
 <template>
   <div class="row fare-container">
     <div class="back-container">
-      <font-awesome-icon icon="chevron-circle-left" title="Go Back" />
+      <font-awesome-icon icon="chevron-circle-left" title="Go Back" @click="$router.go(-1)" />
     </div>
     <div class="col-xs-12 header-container">
       <img :src="images.autoRickShaw" alt="autoRickshaw" class="rickshaw" />
@@ -9,7 +9,9 @@
     </div>
     <div class="col-xs-12 fare-content-container">
       <div class="estimated-fare">Estimated Fare</div>
-      <h3>120 /-</h3>
+      <span style="font-size: 10px;">Duration: {{ fairDetails?.duration_minutes }} min</span>
+      <span style="font-size: 10px;">Distance: {{ fairDetails?.distance_km }} km</span>
+      <h3>{{  fairAmount }} /-</h3>
       <div class="resend-button">Resend OTP</div>
     </div>
     <div class="col-xs-12 form-group">
@@ -25,7 +27,7 @@
       </div>
     </div>
     <div class="col-xs-12 form-group">
-      <button class="proceed-button" @click="$router.push({ name: 'WaitingDriverConfirmation' })">Proceed</button>
+      <button class="proceed-button" @click="verifyOtp">Proceed</button>
     </div>
     <div class="col-xs-12">
       <img :src="images.logo" alt="urban-loop-logo" class="urban-loop-logo" />
@@ -36,21 +38,68 @@
 <script>
 import { debounce } from "lodash";
 import { images } from "../../../assets/images";
+import { mapGetters } from "vuex";
+import OtpService from "../../../services/otp.service";
+import DriverService from "../../../services/driver.service";
+import { mapActions } from "vuex/dist/vuex.cjs.js";
+
+const otpService = new OtpService();
+const driverService = new DriverService();
 
 export default {
   name: "FareComponent",
   data() {
     return {
+      fairAmount: 0,
       otp: "",
       otpError: "",
       images,
       debouncedCheckOTP: debounce(this.validateOtp, 500),
     };
   },
+  computed: {
+    ...mapGetters({
+      fairDetails: 'getFairDetails',
+      mobileNumber: 'getMobileNumber',
+    }),
+  },
+  mounted() {
+    this.fairAmount = this.fairDetails?.fare_amount || 0;
+  },
   methods: {
+    ...mapActions([
+      'setUserId',
+    ]),
     validateOtp() {
-      console.log("Validate OTP logic here");
+      const otpRegex = /^\d{6}$/; // Regex for exactly 6 digits
+      if (!otpRegex.test(this.otp)) {
+        this.otpError = 'OTP must be a 6-digit number.';
+      } else {
+        this.otpError = '';
+      }
     },
+    async verifyOtp() {
+      try {
+        const otpResult = await otpService.verifyOtp(this.mobileNumber, this.otp);
+        if (otpResult) {
+          localStorage.setItem('authToken', otpResult?.data?.auth || otpResult?.data?.Auth);
+          this.getUserDetails();
+          this.$router.push({ name: 'UserRideConfirmationWaiting' });
+        }
+      } catch (error) {
+        console.log(error); 
+      }
+    },
+    async getUserDetails() {
+      try {
+        const userDetails = await driverService.getDriverDetails(this.mobileNumber);
+        if (userDetails) {
+          this.setUserId(userDetails?.data?.id);
+        }
+      } catch (error) {
+        console.log(error); 
+      }
+    }
   },
 };
 </script>
@@ -66,6 +115,12 @@ export default {
       font-size: 35px;
       cursor: pointer;
     }
+  }
+
+  .otp-error-message {
+    color: #dc3545;
+    font-size: 14px;
+    font-weight: 500;
   }
 
   .header-container {

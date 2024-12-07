@@ -16,7 +16,7 @@
         icon="location"
         class="location-icon"
         title="Current Location"
-        @click="selectCurrentLocation"
+        @click="setCurrentLocation"
       />
     </section>
 
@@ -25,6 +25,7 @@
       <input
         v-model="source"
         class="form-control"
+        :class="sourcePlaces?.length ? 'remove-border' : ''"
         type="text"
         placeholder="Search Source Location"
         @change="debouncedSearchSourceLocation()"
@@ -33,6 +34,7 @@
         <li
           v-for="place in sourcePlaces"
           :key="place.id"
+          :title="place.name_place"
           @click="selectPlace(EPathConfig.SOURCE, place)"
         >
           {{ place.name_place }}
@@ -45,6 +47,7 @@
       <input
         v-model="destination"
         class="form-control"
+        :class="destinationPlaces?.length ? 'remove-border' : ''"
         type="text"
         placeholder="Search Destination"
         @change="debouncedSearchDestinationLocation()"
@@ -53,6 +56,7 @@
         <li
           v-for="place in destinationPlaces"
           :key="place.id"
+          :title="place.name_place"
           @click="selectPlace(EPathConfig.DESTINATION, place)"
         >
           {{ place.name_place }}
@@ -62,20 +66,22 @@
 
     <section class="col-xs-12 form-group text-start fw-bold mt-1">
       <label for="mobileNumber">Mobile Number:</label>
-      <input
-        v-model="mobileNumber"
-        class="form-control"
-        type="number"
-        placeholder="Enter Mobile Number"
-        @input="debouncedValidateMobileNumber"
-      />
+      <div class="input-group">
+        <input
+          v-model="mobileNumber"
+          class="form-control ps-3"
+          type="number"
+          placeholder="Enter Mobile Number"
+          @input="debouncedValidateMobileNumber"
+        />
+      </div>
       <div v-if="mobileNumberError" class="mobile-number-error-message">
         {{ mobileNumberError }}
       </div>
     </section>
 
     <section class="col-xs-12 form-group">
-      <button class="confirm-button" @click="$router.push({ name: 'Fair' })">Confirm</button>
+      <button class="confirm-button" @click="handleOTPAndFairService">Confirm</button>
     </section>
   </div>
 </template>
@@ -87,8 +93,13 @@ import { images } from '../../../assets/images';
 import MapService from '../../../services/map';
 import { generateSessionId } from '../../../utils/helper';
 import { EPathConfig } from '../../../utils/constant';
+import OtpService from '../../../services/otp.service';
+import FairService from '../../../services/fair.service';
+import { mapActions } from 'vuex';
 
 const mapService = new MapService();
+const otpService = new OtpService();
+const fairService = new FairService();
 
 export default {
   name: 'LocationSelector',
@@ -115,6 +126,12 @@ export default {
     };
   },
   methods: {
+    ...mapActions([
+      'setFairDetails',
+      'setMobileNumber',
+      'setSourceDetails',
+      'setDestinationDetails',
+    ]),
     async searchSourceLocation() {
       this.isSourceLoading = true;
       try {
@@ -159,12 +176,14 @@ export default {
         };
         const { data } = await mapService.getLocationDetails(payload);
         if (type === EPathConfig.SOURCE) {
-          this.sourceCordinates = [data.latitude, data.longitude];
+          this.sourceCordinates = [data.longitude, data.latitude];
           this.source = place.name_place;
+          this.sourcePlaces = [];
           this.resetPlaceFlag('placeCurrentLocation');
         } else if (type === EPathConfig.DESTINATION) {
-          this.destinationCordinates = [data.latitude, data.longitude];
+          this.destinationCordinates = [data.longitude, data.latitude];
           this.destination = place.name_place;
+          this.destinationPlaces = [];
           this.resetPlaceFlag('placeDestinationLocation');
         }
       } catch (error) {
@@ -176,6 +195,13 @@ export default {
       setTimeout(() => {
         this[flag] = false;
       }, 2000);
+    },
+    async setCurrentLocation() {
+      const { latitude, longitude } = await this.fetchCurrentLocation();
+      this.sourceCordinates = [longitude, latitude];
+      this.source = 'Current Location (You)';
+      this.sourcePlaces = [];
+      this.resetPlaceFlag('placeCurrentLocation');
     },
     fetchCurrentLocation() {
       return new Promise((resolve, reject) => {
@@ -200,6 +226,42 @@ export default {
         ? ''
         : 'Invalid mobile number';
     },
+    async handleOTPAndFairService() {
+      try {
+        // Define the payload for the fair service
+        const fairPayload = {
+          origin_lat: this.sourceCordinates[1],
+          origin_lon: this.sourceCordinates[0],
+          dest_lat: this.destinationCordinates[1],
+          dest_lon: this.destinationCordinates[0]
+        };
+
+        const [otpResponse, autoFairResponse] = await Promise.all([
+          otpService.sendOtp(this.mobileNumber), // OTP service call
+          fairService.getAutoFare(fairPayload)  // Fair service call
+        ]);
+
+        // Handle OTP response
+        if (otpResponse && autoFairResponse) {
+          this.setFairDetails({ ...autoFairResponse.data });
+          this.setSourceDetails({
+            latitude: this.sourceCordinates[1],
+            longitude: this.sourceCordinates[0],
+            address: this.source,
+          });
+          this.setDestinationDetails({
+            latitude: this.destinationCordinates[1],
+            longitude: this.destinationCordinates[0],
+            address: this.destination,
+          });
+          this.setMobileNumber(this.mobileNumber);
+          this.$router.push({ name: 'UserFairDetails' });
+        }
+
+      } catch (error) {
+        console.error('Error occurred:', error);
+      }
+    }
   },
 };
 </script>
@@ -239,6 +301,21 @@ export default {
   .form-group {
     position: relative;
 
+    .input-group-text {
+      height: 2.6rem;
+      padding: 0px 8px;
+      border: 3px solid;
+      margin-top: 0.29rem;
+      border-right: 0;
+      padding-bottom: 1px;
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+
+    .indian-code {
+      position: absolute;
+    }
+
     .search-icon {
       position: absolute;
       top: 18px;
@@ -246,10 +323,16 @@ export default {
       color: rgba(0, 0, 0, 0.8);
     }
 
+    .remove-border {
+      border-bottom: 0;
+      border-bottom-left-radius: 0px;
+      border-bottom-right-radius: 0px;
+    }
+
     input.form-control {
       border-radius: 5px;
       border: 2.5px solid rgba(0, 0, 0, 0.8);
-      padding-left: 40px;
+      padding-left: 30px;
       margin: 5px 0;
 
       &::placeholder {
@@ -270,9 +353,21 @@ export default {
       padding: 0;
       z-index: 1;
       top: 44px;
+      border-bottom-left-radius: 5px;
+      border-bottom-right-radius: 5px;
+      width: 91%;
+      border: 3px solid black;
+      margin-top: -2px;
+      max-height: 175px;
+      overflow-y: auto;
+      text-align: start;
 
       li {
-        padding: 10px;
+        padding: 5px 10px;
+        width: 100%;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
 
         &:hover {
           background-color: rgb(218, 218, 218);

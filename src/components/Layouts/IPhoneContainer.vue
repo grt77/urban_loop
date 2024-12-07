@@ -1,10 +1,20 @@
 <template>
   <div class="iphone-container">
     <div class="screen">
+      <toaster />
       <slot></slot>
     </div>
   </div>
 </template>
+<script>
+import { Toaster } from "@steveyuowo/vue-hot-toast";
+
+export default {
+  components: {
+    Toaster,
+  },
+};
+</script>
   
 <style lang="scss">
 .iphone-container {

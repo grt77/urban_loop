@@ -5,34 +5,90 @@
       <h2>Getting Your <span>FLASH RIDE</span></h2>
     </div>
     <div class="col-xs-12 waiting-driver-content">
-      <div class="estimated-fair">Waiting for Driver's Confirmation</div>
+      <div class="estimated-fair">
+        <span v-if="isLoading">Checking Driver Avialabilty....</span>
+        <span v-else-if="!isDriverAviable && isDriverVerfied">Driver is on other Ride</span>
+        <span v-else-if="isDriverAviable && !isDriverVerfied">Driver is not verified</span>
+        <span v-else-if="!isDriverAviable && !isDriverVerfied">Driver not found</span>
+        <span v-else>Waiting for Driver's Confirmation</span>
+      </div>
     </div>
     <div class="col-xs-12 form-group">
-      <button class="cancel-request-btn">Cancel Request</button>
+      <button  v-if="!isLoading && isDriverAviable && isDriverVerfied" class="cancel-request-btn">Cancel Request</button>
     </div>
     <div class="col-xs-12">
       <img :src="images.logo" alt="urban-loop-logo" class="urban-loop-logo" />
     </div>
+    <button @click="$router.push({ name: 'UserBookingConfirmation' })">BOOKING CONFIRMED</button>
   </div>
 </template>
 
 <script>
-import { debounce } from 'lodash';
 import { images } from '../../../assets/images';
+import DriverService from '../../../services/driver.service';
+import { mapGetters } from 'vuex';
+
+const driverService = new DriverService();
 
 export default {
   name: 'RideConfirmationWaiting',
   data() {
     return {
-      otp: '',
-      otpError: '',
+      isLoading: false,
+      isDriverAviable: false,
+      isDriverVerfied: false,
       images,
-      debouncedCheckOTP: debounce(this.validateOtp, 500),
     };
   },
+  computed: {
+    ...mapGetters({
+      driverId: 'getDriverId',
+      sourceDetails: 'getSourceDetails',
+      destinationDetails: 'getDestinationDetails',
+      userId: 'getUserId',
+      fairDetails: 'getFairDetails',
+    }),
+  },
+  mounted() {
+    this.checkDriverAvialabilty();
+  },
   methods: {
-    validateOtp() {
-      console.log('test');
+    async checkDriverAvialabilty() {
+      try {
+        this.isLoading = true;
+        const driverResponse = await driverService.getDriverVerifiedDetails(this.driverId);
+        this.isDriverAviable = !!driverResponse?.data?.is_available;
+        this.isDriverVerfied = !!driverResponse?.data?.verified;
+        if (this.isDriverAviable && this.isDriverVerfied) {
+          this.createRide();
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        this.isLoading = false;
+      }
+    },
+    async createRide() {
+      try {
+        const payload = {
+          driver_id: this.driverId,
+          origin_lat: this.sourceDetails?.latitude,
+          origin_lon: this.sourceDetails?.longitude,
+          origin_addr: this.sourceDetails?.address,
+          dest_lat: this.destinationDetails?.latitude,
+          dest_lon: this.destinationDetails?.longitude,
+          dest_addr: this.destinationDetails?.address,
+          price: this.fairDetails?.fare_amount,
+          user_id: this.userId,
+          ride_status: 'requested',
+        };
+        const rideResponse = await driverService.createRide(payload);
+        if (rideResponse?.data?.message === 'Success') {
+          console.log(rideResponse);
+        }
+      } catch (error) {
+        console.log(error); 
+      } 
     }
   }
 };
