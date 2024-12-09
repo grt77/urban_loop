@@ -32,6 +32,7 @@ export default {
       map: null,
       directionsServiceUrl: 'https://api.mapbox.com/directions/v5/mapbox/driving',
       mapInitialized: false,
+      centerCordinates: [78.3384576, 17.383424],
       routeGeojson: null,
     };
   },
@@ -57,7 +58,7 @@ export default {
     this.map = new mapboxgl.Map({
       container: 'map',
       style: 'mapbox://styles/mapbox/streets-v11',
-      center: this.sourceCoord, // Initial center at the source location
+      center: this.centerCordinates, // Initial center at the source location
       zoom: 6,
       attributionControl: false,
     });
@@ -123,7 +124,7 @@ export default {
         },
         paint: {
           'line-color': '#888',
-          'line-width': 8,
+          'line-width': 4,
         },
       });
     },

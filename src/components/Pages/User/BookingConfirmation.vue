@@ -3,7 +3,7 @@
     <div class="col-xs-12 header-container">
       <h2>YOU ARE ON <span>FLASH RIDE</span></h2>
     </div>
-    <div class="col-xs-12 map-container">
+    <div class="col-xs-12 map-box-container">
       <booking-map />
     </div>
     <div class="col-xs-12 estimates-travel">
@@ -77,13 +77,13 @@ export default {
     }
   }
 
-  .map-container {
+  .map-box-container {
     position: relative;
     width: 100%;
     height: 250px;
     border: 2px solid #ccc;
     border-radius: 5px;
-    margin-top: 20px;
+    padding: 0 !important;
   }
 
   .estimates-travel {

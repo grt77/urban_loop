@@ -1,10 +1,14 @@
 <template>
-  <div ref="mapContainer" class="map-container" style="height: 250px;"></div>
+  <div>
+    <div id="bookingConfiremd" ref="mapContainer" class="map-container" style="height: 245px;"></div>
+    <button @click="startRide" class="start-ride-button">Start Ride</button>
+  </div>
 </template>
 
 <script>
 import mapboxgl from 'mapbox-gl';
 import { mapGetters } from 'vuex';
+import { images } from '../../assets/images';
 
 const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
@@ -12,123 +16,227 @@ export default {
   data() {
     return {
       map: null,
-      sourceCoordinates: [], // Replace with your starting coordinates
-      destinationCoordinates: [], // Replace with your destination coordinates
+      sourceCoordinates: [-73.9857, 40.7484], // Example default coordinates
+      destinationCoordinates: [-74.0445, 40.6892], // Example default coordinates
       autoMarker: null,
-      route: [], // The route between source and destination (array of coordinates)
+      route: [],
       moveInterval: null,
-      distanceCovered: 0, // Keep track of the distance covered along the route
+      stepIndex: 0,
+      images,
+      userMarker: null,
     };
   },
   computed: {
     ...mapGetters({
       sourceDetails: 'getSourceDetails',
-      destinationDetails: 'destinationDetails',
+      destinationDetails: 'getDestinationDetails',
     }),
   },
   mounted() {
-    this.sourceCoordinates = [this.sourceDetails?.longitude, this.sourceDetails?.latitude];
-    this.destinationCoordinates = [this.destinationCoordinates?.longitude, this.destinationCoordinates?.latitude];
-    console.log(this.sourceCoordinates, this.destinationCoordinates)
-    // Initialize Mapbox
-    mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN; // Replace with your Mapbox token
-    this.map = new mapboxgl.Map({
-      container: this.$refs.mapContainer,
-      style: 'mapbox://styles/mapbox/streets-v11',
-      center: this.sourceCoordinates,
-      zoom: 12,
-      attributionControl: false,
-    });
-
-    this.map.on('load', () => {
-      this.mapInitialized = true;
-    });
-
-    // Add start and destination markers
-    this.addMarkers();
-
-    // Generate a route (for simplicity, we'll assume it's a straight line for this example)
-    this.generateRoute();
-
-    // Start moving the auto symbol
-    this.startMovingAuto();
+    this.initializeCoordinates();
+    this.initializeMap();
   },
   beforeDestroy() {
-    // Clean up map and interval when component is destroyed
-    if (this.moveInterval) {
-      clearInterval(this.moveInterval);
-    }
-    if (this.map) {
-      this.map.remove();
-    }
+    if (this.moveInterval) clearInterval(this.moveInterval);
+    if (this.map) this.map.remove();
   },
   methods: {
-    addMarkers() {
-      // Add start and destination markers
-      new mapboxgl.Marker().setLngLat(this.sourceCoordinates).addTo(this.map);
-      new mapboxgl.Marker().setLngLat(this.destinationCoordinates).addTo(this.map);
-
-      // Add the auto marker (we'll move this later)
-      this.autoMarker = new mapboxgl.Marker({ color: 'red' }).setLngLat(this.sourceCoordinates).addTo(this.map);
+    initializeCoordinates() {
+      if (this.sourceDetails) {
+        // this.sourceCoordinates = [this.sourceDetails.longitude, this.sourceDetails.latitude];
+        this.sourceCoordinates = [78.40333894, 17.4347312]
+      }
+      if (this.destinationDetails) {
+        // this.destinationCoordinates = [this.destinationDetails.longitude, this.destinationDetails.latitude];
+        this.destinationCoordinates = [78.39503006, 17.44064951]
+      }
     },
-    generateRoute() {
-      // For simplicity, create a straight line between the source and destination
-      // In a real-world scenario, use a routing API like Mapbox Directions API
-      const route = [this.sourceCoordinates, this.destinationCoordinates];
-      this.route = route;
-    },
-    startMovingAuto() {
-      const totalDistance = this.calculateDistance(this.sourceCoordinates, this.destinationCoordinates);
-      const speed = 0.05; // Move 5% of the total distance per interval
+    initializeMap() {
+      mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-      this.moveInterval = setInterval(() => {
-        if (this.distanceCovered < totalDistance) {
-          this.distanceCovered += speed;
-          const currentPosition = this.interpolateRoute(this.distanceCovered / totalDistance);
-          this.autoMarker.setLngLat(currentPosition); // Update auto marker position
-        } else {
-          clearInterval(this.moveInterval); // Stop moving when destination is reached
+      this.map = new mapboxgl.Map({
+        container: this.$refs.mapContainer,
+        style: 'mapbox://styles/mapbox/streets-v11',
+        center: this.sourceCoordinates,
+        zoom: 14,
+        attributionControl: false,
+      });
+
+
+      this.map.on('load', () => {
+        // make an initial directions request that
+        // starts and ends at the same location
+        this.getRoute();
+        
+        this.addMarkers();
+
+        this.setupLocationTracking();
+      });
+    },
+    async getRoute() {
+      const start = this.sourceCoordinates;
+      const end = this.destinationCoordinates;
+      const query = await fetch(
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${start[0]},${start[1]};${end[0]},${end[1]}?steps=true&overview=full&geometries=geojson&access_token=${mapboxgl.accessToken}`,
+        { method: 'GET' }
+      );
+      const json = await query.json();
+      const data = json.routes[0];
+      const route = data.geometry.coordinates;
+      const geojson = {
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: route
         }
-      }, 100);
+      };
+
+
+      this.addRouteToMap(geojson);
+
+      this.route = geojson?.geometry?.coordinates || []
+
+
+      const bounds = new mapboxgl.LngLatBounds();
+      route.forEach(coord => bounds.extend(coord));
+
+      // Fit the map to the bounds
+      this.map.fitBounds(bounds, {
+        padding: { top: 50, bottom: 50, left: 50, right: 50 },
+        maxZoom: 14,
+      });
+
+      var el = document.createElement('div');
+      el.className = 'marker';
+
+      // make a marker for each feature and add to the map
+      new mapboxgl.Marker(el)
+        .setLngLat(this.sourceCoordinates)
+        .setPopup(new mapboxgl.Popup({ offset: 25 }))
+        .addTo(this.map);
+
     },
-    calculateDistance(start, end) {
-      // Simple function to calculate the distance between two coordinates (in kilometers)
-      const R = 6371; // Earth's radius in km
-      const [lat1, lon1] = start;
-      const [lat2, lon2] = end;
 
-      const dLat = this.degreesToRadians(lat2 - lat1);
-      const dLon = this.degreesToRadians(lon2 - lon1);
+    addRouteToMap(routeGeojson) {
+    // Remove previous routes if any
+      if (this.map.getSource('route')) {
+        this.map.removeLayer('route');
+        this.map.removeSource('route');
+      }
 
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                Math.cos(this.degreesToRadians(lat1)) * Math.cos(this.degreesToRadians(lat2)) *
-                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      this.map.addSource('route', {
+        type: 'geojson',
+        data: routeGeojson,
+      });
 
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      return R * c; // Distance in km
+      this.map.addLayer({
+        id: 'route',
+        type: 'line',
+        source: 'route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round',
+        },
+        paint: {
+          'line-color': '#888',
+          'line-width': 4,
+        },
+      });
     },
-    interpolateRoute(progress) {
-      // Interpolate the route based on progress (0 to 1)
-      const lat1 = this.sourceCoordinates[1];
-      const lon1 = this.sourceCoordinates[0];
-      const lat2 = this.destinationCoordinates[1];
-      const lon2 = this.destinationCoordinates[0];
-
-      const lat = lat1 + progress * (lat2 - lat1);
-      const lon = lon1 + progress * (lon2 - lon1);
-
-      return [lon, lat]; // Return the interpolated coordinates
+    addMarkers() {
+      new mapboxgl.Marker()
+        .setLngLat(this.sourceCoordinates)
+        .addTo(this.map);
+        
+      new mapboxgl.Marker({ color: 'red' }) // Set the color
+        .setLngLat(this.destinationCoordinates)
+        .addTo(this.map);
     },
-    degreesToRadians(degrees) {
-      return degrees * Math.PI / 180;
-    }
-  }
+    updateUserLocation(position) {
+      if (this.isMoving) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        const newLocation = [lng, lat];
+
+        // Update the user marker's position
+        if (this.userMarker) {
+          this.userMarker.setLngLat(newLocation);
+          this.setBoundsToStart([lat, lng])
+        }
+      }
+    },
+    addUserMarker() {
+      const customMarkerElement = document.createElement('div');
+      customMarkerElement.style.backgroundImage = `url(${this.images.navigationImage})`;
+      customMarkerElement.style.width = `25px`;
+      customMarkerElement.style.height = `25px`;
+      customMarkerElement.style.backgroundSize = '100%';
+      customMarkerElement.style.cursor = 'pointer';
+
+      this.userMarker = new mapboxgl.Marker({ element: customMarkerElement })
+        .setLngLat(this.sourceCoordinates) // Start at the source coordinates
+        .addTo(this.map);
+      this.setBoundsToStart(this.sourceCoordinates)
+    },
+    startRide() {
+      this.addUserMarker();
+    },
+    setupLocationTracking() {
+      if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(
+          (position) => {
+            console.log('Location updated:', position);
+            this.updateUserLocation(position);
+          },
+          (error) => console.error(error),
+          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+        );
+      } else {
+        console.error('Geolocation is not supported by this browser.');
+      }
+    },
+    setBoundsToStart(coordinates) {
+      const startCoordinates = coordinates // Example start coordinates (Longitude, Latitude)
+      
+      // Create a new bounds object
+      const bounds = new mapboxgl.LngLatBounds();
+      
+      // Extend the bounds to include the start coordinates
+      bounds.extend(startCoordinates);
+      
+      // Fit the map to the bounds
+      this.map.fitBounds(bounds, {
+        padding: { top: 50, bottom: 50, left: 50, right: 50 }, // Optional padding
+        maxZoom: 20, // Optional max zoom
+      });
+    },
+  },
 };
 </script>
 
-<style scoped>
-.map-container {
+<style lang="scss" scoped>
+#bookingConfirmed {
+  position: relative;
   width: 100%;
-  height: 100%;
+  height: 245px;
+    
+  canvas {
+    width: 100% !important;
+    height: 245px;
+  }
+}
+
+.start-ride-button {
+  position: absolute;
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 </style>

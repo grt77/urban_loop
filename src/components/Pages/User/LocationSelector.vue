@@ -28,7 +28,7 @@
         :class="sourcePlaces?.length ? 'remove-border' : ''"
         type="text"
         placeholder="Search Source Location"
-        @change="debouncedSearchSourceLocation()"
+        @input="debouncedSearchSourceLocation()"
       />
       <ul v-if="sourcePlaces?.length" class="place-list-container">
         <li
@@ -50,7 +50,7 @@
         :class="destinationPlaces?.length ? 'remove-border' : ''"
         type="text"
         placeholder="Search Destination"
-        @change="debouncedSearchDestinationLocation()"
+        @input="debouncedSearchDestinationLocation()"
       />
       <ul v-if="destinationPlaces?.length" class="place-list-container">
         <li
@@ -116,8 +116,8 @@ export default {
       mobileNumberError: '',
       placeCurrentLocation: false,
       placeDestinationLocation: false,
-      debouncedSearchSourceLocation: debounce(this.searchSourceLocation, 500),
-      debouncedSearchDestinationLocation: debounce(this.searchDestinationLocation, 500),
+      debouncedSearchSourceLocation: debounce(this.searchSourceLocation, 100),
+      debouncedSearchDestinationLocation: debounce(this.searchDestinationLocation, 100),
       debouncedValidateMobileNumber: debounce(this.validateMobileNumber, 500),
       images,
       EPathConfig,
