@@ -13,6 +13,16 @@ import { images } from '../../assets/images';
 const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
 
 export default {
+  props: {
+    sourceDetails: {
+      type: Array,
+      default: () => [],
+    },
+    destinationDetails: {
+      type: Array,
+      default: () => [],
+    },
+  },
   data() {
     return {
       map: null,
@@ -27,10 +37,10 @@ export default {
     };
   },
   computed: {
-    ...mapGetters({
-      sourceDetails: 'getSourceDetails',
-      destinationDetails: 'getDestinationDetails',
-    }),
+    // ...mapGetters({
+    //   sourceDetails: 'getSourceDetails',
+    //   destinationDetails: 'getDestinationDetails',
+    // }),
   },
   mounted() {
     this.initializeCoordinates();
@@ -44,11 +54,13 @@ export default {
     initializeCoordinates() {
       if (this.sourceDetails) {
         // this.sourceCoordinates = [this.sourceDetails.longitude, this.sourceDetails.latitude];
-        this.sourceCoordinates = [78.40333894, 17.4347312]
+        // this.sourceCoordinates = [78.40333894, 17.4347312]
+        this.sourceCoordinates = this.sourceDetails;
       }
       if (this.destinationDetails) {
         // this.destinationCoordinates = [this.destinationDetails.longitude, this.destinationDetails.latitude];
-        this.destinationCoordinates = [78.39503006, 17.44064951]
+        // this.destinationCoordinates = [78.39503006, 17.44064951]
+        this.destinationCoordinates = this.destinationDetails;
       }
     },
     initializeMap() {
@@ -68,8 +80,6 @@ export default {
         // starts and ends at the same location
         this.getRoute();
         
-        this.addMarkers();
-
         this.setupLocationTracking();
       });
     },
@@ -94,6 +104,8 @@ export default {
 
 
       this.addRouteToMap(geojson);
+
+      this.addMarkers();
 
       this.route = geojson?.geometry?.coordinates || []
 

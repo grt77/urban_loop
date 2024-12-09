@@ -3,21 +3,31 @@
     <div class="col-xs-12 text-center">
       <img :src="images.autoRickShaw" width="70px" alt="Auto Rickshaw" />
       <img :src="images.flashRideLogo" width="100%" class="mt-2" alt="Flash Ride Logo" />
-      <div class="mt-4">
-        <span class="fw-bold">Destination: </span>XXXXXXXX
+      <div v-if="rideDetails?.length" class="rides-container">
+        <div v-for="(ride) in rideDetails" :key="ride?.ride_id" class="card ride-card">
+          <div class="card-body">
+            <p class="card-text mb-1">
+              <b>Destination - </b>
+              <span>{{ ride?.dest_addr?.split(',')[0] }}</span>
+            </p>
+            <div class="row">
+              <div class="col-xs-6 col-sm-6 text-center">
+                <b>Other's Avg Price - </b>{{ (ride?.price - 20) }}
+              </div>
+              <div class="col-xs-6 col-sm-6 text-center">
+                <b>Flash Ride Price -</b> {{ Number(ride?.price) }}
+              </div>
+            </div>
+            <div class="btn-container">
+              <button class="btn btn-success p-1 px-3 me-2" @click="acceptRide(ride)">Accept</button>
+              <button class="btn btn-danger p-1 px-3" @click="rejectRide(ride?.ride_id)">Decline</button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-    <div class="col-xs-6 col-sm-6 mt-5 text-center">
-      <div class="price-info">Other's Avg Price - 100</div>
-    </div>
-    <div class="col-xs-6 col-sm-6 mt-5 text-center">
-      <div class="price-info">Flash Ride Price - 120</div>
-    </div>
-    <div class="col-xs-6 col-sm-6 mt-5 text-center">
-      <button class="btn btn-success rounded-1 px-4 fw-500">Accept</button>
-    </div>
-    <div class="col-xs-6 col-sm-6 mt-5 text-center">
-      <button class="btn btn-danger rounded-1 px-4 fw-500">Reject</button>
+      <div v-else class="no-rides-container">
+        <h4>No Rides Found!</h4>
+      </div>
     </div>
     <div class="col-xs-12">
       <img :src="images.logo" alt="Urban Loop Logo" class="urban-loop-logo" />
@@ -26,22 +36,114 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 import { images } from '../../../assets/images';
+import DriverService from '../../../services/driver.service';
+
+const driverService = new DriverService();
 
 export default {
   name: 'RideDecision',
   data() {
     return {
       images,
+      rideDetails: [],
     };
   },
+  mounted() {
+    this.getActiveRides();
+  },
+  methods: {
+    ...mapActions([
+      'setDriverActiveRideDetails',
+    ]),
+    async getActiveRides() {
+      try {
+        const activeRidesResponse = await driverService.getActiveRides('9876543210');
+        if (activeRidesResponse) {
+          console.log(activeRidesResponse);
+          this.rideDetails = [...activeRidesResponse?.data];
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async acceptRide(rideDetails) {
+      try {
+        const rideResponse = await driverService.acceptRideById(rideDetails?.ride_id);
+        if (rideResponse?.status === 200) {
+          this.setDriverActiveRideDetails(rideDetails);
+          this.$router.push({ name: 'DriverRideConfirmation' });
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async rejectRide(rideId) {
+      try {
+        const rideResponse = await driverService.rejectRideById(rideId);
+        if (rideResponse?.status === 200) {
+          const rideIndex = this.rideDetails.findIndex((ride) => ride?.ride_id === rideId);
+          if (rideIndex > -1) {
+            this.rideDetails.splice(rideIndex, 1);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
+  }
 };
 </script>
 
 <style lang="scss">
 .main-container {
-  margin-top: 40px;
   font-family: Arial, Helvetica, sans-serif;
+
+  .rides-container {
+    max-height: 55vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 2;
+    font-size: 13px;
+
+    .ride-card {
+      width: 15rem;
+      padding: 0;
+      text-align: start;
+      margin-bottom: 10px;
+
+      .card-body {
+        padding: 7px 10px;
+      }
+
+      &::-webkit-scrollbar {
+        display: none; /* WebKit-based browsers */
+      }
+
+      .btn-container {
+        display: flex;
+        justify-content: center;
+        margin-top: 7px;
+
+        button {
+          font-size: 12px !important;
+        }
+      }
+    }
+  }
+
+
+  .no-rides-container {
+    height: 45vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    h4 {
+      font-weight: bold;
+    }
+  }
 
   .price-info {
     font-size: 16px;

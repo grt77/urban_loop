@@ -7,11 +7,10 @@
       <img :src="images.flashRideLogo" alt="Flash Ride Logo" class="flash-ride-logo" />
     </div>
     <div class="col-xs-12 map-container">
-      <map-box
-        :source-coordinates="sourceCoordinates"
-        :destination-coordinates="destinationCoordinates"
-        :place-current-location="placeCurrentLocation"
-        :place-destination-location="placeDestinationLocation"
+      <booking-map
+        v-if="initializeMap"
+        :source-details="sourceCoordinates"
+        :destination-details="destinationCoordinates"
       />
     </div>
     <div class="col-xs-12 travel-info">
@@ -27,23 +26,36 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { images } from '../../../assets/images';
 import Mapbox from '../../Widgets/Mapbox.vue';
+import BookingMap from '../../Widgets/BookingMap.vue';
 
 export default {
   name: 'RideConfirmation',
   components: {
     Mapbox,
+    BookingMap
   },
   data() {
     return {
-      placeCurrentLocation: false,
-      placeDestinationLocation: false,
       sourceCoordinates: [],
       destinationCoordinates: [],
       images,
+      initializeMap: false,
     };
   },
+  computed: {
+    ...mapGetters({
+      currentRideDetails: 'getDriverActiveRideDetails'
+    }),
+  },
+  mounted() {
+    this.initializeMap = false;
+    this.sourceCoordinates = [this.currentRideDetails?.origin_long, this.currentRideDetails?.origin_lat];
+    this.destinationCoordinates = [this.currentRideDetails?.dest_long, this.currentRideDetails?.dest_lat];
+    this.initializeMap = true;
+  }
 };
 </script>
 

@@ -50,6 +50,36 @@ class DriverService {
       });
     });
   }
+
+  getActiveRides(mobileNumber) {
+    return new Promise((resolve, reject) => {
+      axios.post('/driver/get_present_rides', { mobile_number: mobileNumber }).then((response) => {
+        return resolve(response);
+      }).catch((error) => {
+        return reject(error);
+      });
+    });
+  }
+
+  acceptRideById(rideId) {
+    return new Promise((resolve, reject) => {
+      axios.post('driver/accept_ride_id_reject_rem', { ride_id: rideId }).then((response) => {
+        return resolve(response);
+      }).catch((error) => {
+        return reject(error);
+      });
+    });
+  }
+
+  rejectRideById(rideId) {
+    return new Promise((resolve, reject) => {
+      axios.post('ride/cancel_ride', { ride_id: rideId }).then((response) => {
+        return resolve(response);
+      }).catch((error) => {
+        return reject(error);
+      });
+    });
+  }
 }
 
 export default DriverService;

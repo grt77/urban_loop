@@ -77,7 +77,7 @@ export default {
       if (this.isMobileNumberPage) {
         try {
           const loginDetails = await driverService.loginByMobileNumber(this.mobileNumber);
-          if (loginDetails?.data?.message?.message === 'Success') {
+          if (loginDetails?.data?.message === 'Success') {
             this.isMobileNumberPage = false;
           }
         } catch (error) {
@@ -86,7 +86,8 @@ export default {
       } else {
         try {
           const otpDetails = await driverService.verifyOtp(this.mobileNumber, this.otp);
-          if (otpDetails?.data) {
+          if (otpDetails?.data?.message === 'Validated') {
+            localStorage?.setItem('authToken', otpDetails?.data?.Auth);
             this.$router.push({ name: 'DriverRideDecision'});
           }
         } catch (error) {

@@ -88,6 +88,10 @@ export default {
           };
           this.addRouteToMap(geojson);
 
+          new mapboxgl.Marker({ color: 'red' })
+            .setLngLat(this.destinationCordinates)
+            .addTo(this.map);
+
           const bounds = new mapboxgl.LngLatBounds();
           route.forEach(coord => bounds.extend(coord));
 
@@ -131,14 +135,13 @@ export default {
 
     pickCurrentLocation() {
       if (this.mapInitialized) {
-            this.map.flyTo({
-              center: [this.sourceCordinates[0], this.sourceCordinates[1]],
-              zoom: 14,
-              speed: 2,
-              curve: 1,
-            });
-
-          }
+        this.map.flyTo({
+          center: [this.sourceCordinates[0], this.sourceCordinates[1]],
+          zoom: 14,
+          speed: 2,
+          curve: 1,
+        });
+      }
     }
   },
 };

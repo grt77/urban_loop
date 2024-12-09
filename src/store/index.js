@@ -1,5 +1,5 @@
 import { createStore } from 'vuex';
-import { SET_DESTINATION_DETAILS, SET_FAIR_DETAILS, SET_MOBILE_NUMBER, SET_SOURCE_DETAILS, SET_USER_ID } from './mutation-types';
+import { SET_DESTINATION_DETAILS, SET_DRIVER_ACTIVE_DETAILS, SET_FAIR_DETAILS, SET_MOBILE_NUMBER, SET_SOURCE_DETAILS, SET_USER_ID } from './mutation-types';
 
 const store = createStore({
   state: {
@@ -9,6 +9,7 @@ const store = createStore({
     userId: null,
     sourceDetails: {},
     destinationDetails: {},
+    driverActiveRideDetails: {},
   },
   mutations: {
     [SET_FAIR_DETAILS](state, payload) {
@@ -25,6 +26,9 @@ const store = createStore({
     },
     [SET_USER_ID](state, payload) {
       state.userId = payload;
+    },
+    [SET_DRIVER_ACTIVE_DETAILS](state, payload) {
+      state.driverActiveRideDetails = payload;
     }
   },
   actions: {
@@ -42,6 +46,9 @@ const store = createStore({
     },
     setUserId({ commit }, payload) {
       commit(SET_USER_ID, payload);
+    },
+    setDriverActiveRideDetails({ commit }, payload) {
+      commit(SET_DRIVER_ACTIVE_DETAILS, payload);
     },
   },
   getters: {
@@ -62,6 +69,9 @@ const store = createStore({
     },
     getUserId: (state) => {
       return state.driverId;
+    },
+    getDriverActiveRideDetails: (state) => {
+      return state.driverActiveRideDetails;
     },
   }
 });
