@@ -18,14 +18,6 @@ export default {
       type: Array,
       default: () => [],
     },
-    placeCurrentLocation: {
-      type: Boolean,
-      default: false,
-    },
-    placeDestinationLocation: {
-      type: Boolean,
-      default: false,
-    },
   },
   data() {
     return {
@@ -34,20 +26,32 @@ export default {
       mapInitialized: false,
       centerCordinates: [78.3384576, 17.383424],
       routeGeojson: null,
+      sourceMarker: null,
+      destinationMarker: null,
     };
   },
   watch: {
-    placeCurrentLocation: {
-      handler(val) {
-        if (val) {
-          this.pickCurrentLocation();
+    sourceCordinates: {
+      handler() {
+        if (this.sourceCordinates?.length && this.destinationCordinates?.length) {
+          this.getRoute();
+        } else {
+          this.showSourcePlace();
+        }
+        if (this.sourceCordinates?.length) {
+          this.sourceMarker = new mapboxgl.Marker().setLngLat(this.sourceCordinates).addTo(this.map);
         }
       }
     },
-    placeDestinationLocation: {
-      handler(val) {
-        if (val) {
+    destinationCordinates: {
+      handler() {
+        if (this.sourceCordinates?.length && this.destinationCordinates?.length) {
           this.getRoute();
+        } else {
+          this.showDestinationPlace();
+        }
+        if (this.destinationCordinates?.length) {
+          this.destinationMarker = new mapboxgl.Marker({ color: 'red' }).setLngLat(this.destinationCordinates).addTo(this.map);
         }
       }
     }
@@ -132,11 +136,20 @@ export default {
         },
       });
     },
-
-    pickCurrentLocation() {
+    showSourcePlace() {
       if (this.mapInitialized) {
         this.map.flyTo({
           center: [this.sourceCordinates[0], this.sourceCordinates[1]],
+          zoom: 14,
+          speed: 2,
+          curve: 1,
+        });
+      }
+    },
+    showDestinationPlace() {
+      if (this.mapInitialized) {
+        this.map.flyTo({
+          center: [this.destinationCordinates[0], this.destinationCordinates[1]],
           zoom: 14,
           speed: 2,
           curve: 1,

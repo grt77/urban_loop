@@ -52,16 +52,17 @@ export default {
   },
   methods: {
     initializeCoordinates() {
-      if (this.sourceDetails) {
-        // this.sourceCoordinates = [this.sourceDetails.longitude, this.sourceDetails.latitude];
-        // this.sourceCoordinates = [78.40333894, 17.4347312]
-        this.sourceCoordinates = this.sourceDetails;
-      }
-      if (this.destinationDetails) {
-        // this.destinationCoordinates = [this.destinationDetails.longitude, this.destinationDetails.latitude];
-        // this.destinationCoordinates = [78.39503006, 17.44064951]
-        this.destinationCoordinates = this.destinationDetails;
-      }
+      this.destinationCoordinates = [78.40333894, 17.4347312];
+      this.sourceCoordinates = [78.39503006, 17.44064951]
+
+      // if (this.sourceDetails) {
+      //   // this.sourceCoordinates = [this.sourceDetails.longitude, this.sourceDetails.latitude];
+      //   this.sourceCoordinates = this.sourceDetails;
+      // }
+      // if (this.destinationDetails) {
+      //   // this.destinationCoordinates = [this.destinationDetails.longitude, this.destinationDetails.latitude];
+      //   this.destinationCoordinates = this.destinationDetails;
+      // }
     },
     initializeMap() {
       mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
@@ -170,6 +171,7 @@ export default {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         const newLocation = [lng, lat];
+        console.log(newLocation);
 
         // Update the user marker's position
         if (this.userMarker) {
@@ -189,6 +191,7 @@ export default {
       this.userMarker = new mapboxgl.Marker({ element: customMarkerElement })
         .setLngLat(this.sourceCoordinates) // Start at the source coordinates
         .addTo(this.map);
+      this.setupLocationTracking();
       this.setBoundsToStart(this.sourceCoordinates)
     },
     startRide() {
@@ -196,13 +199,13 @@ export default {
     },
     setupLocationTracking() {
       if (navigator.geolocation) {
-        navigator.geolocation.watchPosition(
+        navigator.geolocation.getCurrentPosition(
           (position) => {
-            console.log('Location updated:', position);
+            console.log(position)
             this.updateUserLocation(position);
+            this.setupLocationTracking();
           },
           (error) => console.error(error),
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
         );
       } else {
         console.error('Geolocation is not supported by this browser.');

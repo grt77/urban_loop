@@ -4,7 +4,10 @@
       <h2>YOU ARE ON <span>FLASH RIDE</span></h2>
     </div>
     <div class="col-xs-12 map-box-container">
-      <booking-map />
+      <booking-map
+      v-if="initializeMap"
+      :source-details="sourceCoordinates"
+      :destination-details="destinationCoordinates" />
     </div>
     <div class="col-xs-12 estimates-travel">
       <div>Estimates Travel time 11 Mins</div>
@@ -33,6 +36,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { images } from '../../../assets/images';
 import BookingMap from '../../Widgets/BookingMap.vue';
 import Mapbox from '../../Widgets/Mapbox.vue';
@@ -50,8 +54,22 @@ export default {
       sourceCordinates: [],
       destinationCordinates: [],
       images,
+      initializeMap: false,
     };
   },
+  computed: {
+    ...mapGetters({
+      sourceDetails: 'getSourceDetails',
+      destinationDetails: 'getDestinationDetails',
+    }),
+  },
+  mounted() {
+    this.initializeMap = false;
+    this.sourceCoordinates = [this.sourceDetails.longitude, this.sourceDetails.latitude];
+    this.destinationCoordinates = [this.destinationDetails.longitude, this.destinationDetails.latitude];
+    console.log(this.sourceCordinates, this.destinationCordinates)
+    this.initializeMap = true;
+  }
 };
 </script>
 

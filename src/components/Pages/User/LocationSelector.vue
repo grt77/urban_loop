@@ -6,7 +6,7 @@
     </header>
 
     <section class="col-xs-12 map-container">
-      <map-box
+      <!-- <map-box
         :source-cordinates="sourceCordinates"
         :destination-cordinates="destinationCordinates"
         :place-current-location="placeCurrentLocation"
@@ -17,7 +17,8 @@
         class="location-icon"
         title="Current Location"
         @click="setCurrentLocation"
-      />
+      /> -->
+      <booking-map />
     </section>
 
     <section class="col-xs-12 form-group">
@@ -96,6 +97,7 @@ import { EPathConfig } from '../../../utils/constant';
 import OtpService from '../../../services/otp.service';
 import FairService from '../../../services/fair.service';
 import { mapActions } from 'vuex';
+import BookingMap from '../../Widgets/BookingMap.vue';
 
 const mapService = new MapService();
 const otpService = new OtpService();
@@ -103,7 +105,7 @@ const fairService = new FairService();
 
 export default {
   name: 'LocationSelector',
-  components: { MapBox },
+  components: { MapBox, BookingMap },
   data() {
     return {
       source: '',
@@ -341,6 +343,16 @@ export default {
 
       &:focus {
         box-shadow: none;
+      }
+    }
+
+    input[type="number"] {
+      -moz-appearance: textfield;
+      appearance: textfield;
+
+      &::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
       }
     }
 
