@@ -1,13 +1,11 @@
 <template>
   <div>
-    <div id="bookingConfiremd" ref="mapContainer" class="map-container" style="height: 245px;"></div>
-    <button @click="startRide" class="start-ride-button">Start Ride</button>
+    <div id="bookingConfiremd" ref="mapContainer" class="map-container" :style="`height: ${height};`"></div>
   </div>
 </template>
 
 <script>
 import mapboxgl from 'mapbox-gl';
-import { mapGetters } from 'vuex';
 import { images } from '../../assets/images';
 
 const MAPBOX_ACCESS_TOKEN = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN;
@@ -21,6 +19,14 @@ export default {
     destinationDetails: {
       type: Array,
       default: () => [],
+    },
+    height: {
+      type: String,
+      default: '245px',
+    },
+    isRideStarted: {
+      type: Boolean,
+      default: false,
     },
   },
   data() {
@@ -36,11 +42,14 @@ export default {
       userMarker: null,
     };
   },
-  computed: {
-    // ...mapGetters({
-    //   sourceDetails: 'getSourceDetails',
-    //   destinationDetails: 'getDestinationDetails',
-    // }),
+  watch: {
+    isRideStarted: {
+      handler(val) {
+        if (val) {
+          this.startRide();
+        }
+      }
+    },
   },
   mounted() {
     this.initializeCoordinates();
@@ -52,17 +61,12 @@ export default {
   },
   methods: {
     initializeCoordinates() {
-      this.destinationCoordinates = [78.40333894, 17.4347312];
-      this.sourceCoordinates = [78.39503006, 17.44064951]
-
-      // if (this.sourceDetails) {
-      //   // this.sourceCoordinates = [this.sourceDetails.longitude, this.sourceDetails.latitude];
-      //   this.sourceCoordinates = this.sourceDetails;
-      // }
-      // if (this.destinationDetails) {
-      //   // this.destinationCoordinates = [this.destinationDetails.longitude, this.destinationDetails.latitude];
-      //   this.destinationCoordinates = this.destinationDetails;
-      // }
+      if (this.sourceDetails) {
+        this.sourceCoordinates = this.sourceDetails;
+      }
+      if (this.destinationDetails) {
+        this.destinationCoordinates = this.destinationDetails;
+      }
     },
     initializeMap() {
       mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
@@ -77,8 +81,6 @@ export default {
 
 
       this.map.on('load', () => {
-        // make an initial directions request that
-        // starts and ends at the same location
         this.getRoute();
         
         this.setupLocationTracking();
@@ -171,7 +173,6 @@ export default {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         const newLocation = [lng, lat];
-        console.log(newLocation);
 
         // Update the user marker's position
         if (this.userMarker) {
@@ -187,12 +188,10 @@ export default {
       customMarkerElement.style.height = `25px`;
       customMarkerElement.style.backgroundSize = '100%';
       customMarkerElement.style.cursor = 'pointer';
-
       this.userMarker = new mapboxgl.Marker({ element: customMarkerElement })
-        .setLngLat(this.sourceCoordinates) // Start at the source coordinates
+        .setLngLat(this.sourceCoordinates)
         .addTo(this.map);
-      this.setupLocationTracking();
-      this.setBoundsToStart(this.sourceCoordinates)
+        this.setBoundsToStart(this.sourceCoordinates);
     },
     startRide() {
       this.addUserMarker();
@@ -226,20 +225,37 @@ export default {
         maxZoom: 20, // Optional max zoom
       });
     },
+    fetchCurrentLocation() {
+      console.log('CALLING FOR FETCH CURRENT LOCATION')
+      return new Promise((resolve, reject) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              resolve({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+              });
+            },
+            (error) => reject(error.message || 'Failed to fetch location.')
+          );
+        } else {
+          reject('Geolocation is not supported by this browser.');
+        }
+      });
+    },
   },
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
 #bookingConfirmed {
   position: relative;
   width: 100%;
-  height: 245px;
-    
-  canvas {
-    width: 100% !important;
-    height: 245px;
-  }
+  border-radius: 7px;
+}
+
+v-deep #bookingConfirmed canvas {
+  width: 100%;
 }
 
 .start-ride-button {

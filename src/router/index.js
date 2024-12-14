@@ -12,6 +12,8 @@ import RideDecision from '../components/Pages/Driver/RideDecision.vue';
 import RideConfirmation from '../components/Pages/Driver/RideConfirmation.vue';
 import FinalFareCollection from '../components/Pages/Driver/FinalFareCollection.vue';
 import Login from '../components/Pages/Driver/Login.vue';
+import QRScanner from '../components/Pages/Driver/DriverInfo.vue';
+import DriverInfo from '../components/Pages/Driver/DriverInfo.vue';
 
 const userRoutes = [
   {
@@ -47,6 +49,11 @@ const driverRoutes = [
     path: '/driver/login',
     name: 'DriverLogin',
     component: Login,
+  },
+  {
+    path: '/driver/info',
+    name: 'DriverInfo',
+    component: DriverInfo,
   },
   {
     path: '/driver/ride-decision',

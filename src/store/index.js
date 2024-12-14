@@ -1,19 +1,23 @@
 import { createStore } from 'vuex';
-import { SET_DESTINATION_DETAILS, SET_DRIVER_ACTIVE_DETAILS, SET_FAIR_DETAILS, SET_MOBILE_NUMBER, SET_SOURCE_DETAILS, SET_USER_ID } from './mutation-types';
+import { SET_DESTINATION_DETAILS, SET_DRIVER_ACTIVE_DETAILS, SET_DRIVER_ID, SET_FAIR_DETAILS, SET_MOBILE_NUMBER, SET_SOURCE_DETAILS, SET_USER_ID, SET_USER_RIDE_INFO } from './mutation-types';
 
 const store = createStore({
   state: {
     fairDetails: {},
     currentMobileNumber: 0,
-    driverId: '973239d3-a8f3-11ef-992f-06e09a310733',
+    driverId: '',
     userId: null,
     sourceDetails: {},
     destinationDetails: {},
     driverActiveRideDetails: {},
+    userRideInfo: {},
   },
   mutations: {
     [SET_FAIR_DETAILS](state, payload) {
       state.fairDetails = payload;
+    },
+    [SET_DRIVER_ID](state, payload) {
+      state.driverId = payload;
     },
     [SET_MOBILE_NUMBER](state, payload) {
       state.currentMobileNumber = payload;
@@ -29,11 +33,17 @@ const store = createStore({
     },
     [SET_DRIVER_ACTIVE_DETAILS](state, payload) {
       state.driverActiveRideDetails = payload;
-    }
+    },
+    [SET_USER_RIDE_INFO](state, payload) {
+      state.userRideInfo = payload;
+    },
   },
   actions: {
     setFairDetails({ commit }, payload) {
       commit(SET_FAIR_DETAILS, payload);
+    },
+    setDriverId({ commit }, payload) {
+      commit(SET_DRIVER_ID, payload);
     },
     setMobileNumber({ commit }, payload) {
       commit(SET_MOBILE_NUMBER, payload);
@@ -49,6 +59,9 @@ const store = createStore({
     },
     setDriverActiveRideDetails({ commit }, payload) {
       commit(SET_DRIVER_ACTIVE_DETAILS, payload);
+    },
+    setUserRideInfo({ commit }, payload) {
+      commit(SET_USER_RIDE_INFO, payload);
     },
   },
   getters: {
@@ -72,6 +85,9 @@ const store = createStore({
     },
     getDriverActiveRideDetails: (state) => {
       return state.driverActiveRideDetails;
+    },
+    getUserRideInfo: (state) => {
+      return state.userRideInfo;
     },
   }
 });

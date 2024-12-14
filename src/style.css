@@ -79,3 +79,8 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+body >>> .slideunlock {
+  --su-color-bg: red !important; /* Set the background color to light pink */
+  --su-color-progress-complete-bg: #32cd32; /* Change progress bar color to lime green */
+}

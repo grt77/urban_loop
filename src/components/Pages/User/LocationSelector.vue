@@ -1,12 +1,12 @@
 <template>
-  <div class="row location-selector-container">
+  <div v-if="isDriverValid" class="row location-selector-container">
     <header class="col-xs-12 header-container">
       <img class="rickshaw" :src="images.autoRickShaw" alt="Rickshaw" width="70px" />
       <img class="urban-loop-logo" :src="images.logo" alt="Urban Loop Logo" width="80%" />
     </header>
 
     <section class="col-xs-12 map-container">
-      <!-- <map-box
+      <map-box
         :source-cordinates="sourceCordinates"
         :destination-cordinates="destinationCordinates"
         :place-current-location="placeCurrentLocation"
@@ -17,8 +17,7 @@
         class="location-icon"
         title="Current Location"
         @click="setCurrentLocation"
-      /> -->
-      <booking-map />
+      />
     </section>
 
     <section class="col-xs-12 form-group">
@@ -85,6 +84,9 @@
       <button class="confirm-button" @click="handleOTPAndFairService">Confirm</button>
     </section>
   </div>
+  <div v-else class="driver-not-found">
+    <h3>Driver not found!</h3>
+  </div>
 </template>
 
 <script>
@@ -97,15 +99,16 @@ import { EPathConfig } from '../../../utils/constant';
 import OtpService from '../../../services/otp.service';
 import FairService from '../../../services/fair.service';
 import { mapActions } from 'vuex';
-import BookingMap from '../../Widgets/BookingMap.vue';
+import DriverService from '../../../services/driver.service';
 
 const mapService = new MapService();
 const otpService = new OtpService();
 const fairService = new FairService();
+const driverService = new DriverService();
 
 export default {
   name: 'LocationSelector',
-  components: { MapBox, BookingMap },
+  components: { MapBox },
   data() {
     return {
       source: '',
@@ -125,7 +128,11 @@ export default {
       EPathConfig,
       isSourceLoading: false,
       isDestinationLoading: false,
+      isDriverValid: false,
     };
+  },
+  mounted() {
+    this.isValidDriver(this.$route?.query?.driver_id);
   },
   methods: {
     ...mapActions([
@@ -133,7 +140,18 @@ export default {
       'setMobileNumber',
       'setSourceDetails',
       'setDestinationDetails',
+      'setDriverId',
     ]),
+    async isValidDriver(driverId) {
+      try {
+        const driverResponse = await driverService.isValidDriver(driverId);
+        console.log(driverResponse)
+        this.isDriverValid = driverResponse?.data?.exists;
+        this.setDriverId(this.$route?.query?.driver_id);
+      } catch (error) {
+        console.error(error);
+      }
+    },
     async searchSourceLocation() {
       this.isSourceLoading = true;
       try {
@@ -200,10 +218,23 @@ export default {
     },
     async setCurrentLocation() {
       const { latitude, longitude } = await this.fetchCurrentLocation();
-      this.sourceCordinates = [longitude, latitude];
-      this.source = 'Current Location (You)';
-      this.sourcePlaces = [];
-      this.resetPlaceFlag('placeCurrentLocation');
+      try {
+        const locationResponse = await mapService.getLocationName(longitude, latitude);
+        this.sourceCordinates = [longitude, latitude];
+        this.source = locationResponse?.data?.Name || 'Current Location (You)';
+        this.sourcePlaces = [];
+        this.resetPlaceFlag('placeCurrentLocation');
+      } catch (error) {
+        console.log(error);
+      }
+    },
+    async getLocationName(long, lat) {
+      try {
+        const locationResponse = await mapService.getLocationName(long, lat);
+        console.log(locationResponse);
+      } catch (error) {
+        console.log(error);
+      }
     },
     fetchCurrentLocation() {
       return new Promise((resolve, reject) => {
@@ -402,5 +433,12 @@ export default {
       border-radius: 5px;
     }
   }
+}
+
+.driver-not-found {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
 }
 </style>

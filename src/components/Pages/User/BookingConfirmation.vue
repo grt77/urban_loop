@@ -8,38 +8,42 @@
       v-if="initializeMap"
       :source-details="sourceCoordinates"
       :destination-details="destinationCoordinates" />
+      <img :src="images.googleMapIcon" alt="google-map-icon" class="google-map-icon" width="60px" @click="navigateToGoogleMap" />
     </div>
     <div class="col-xs-12 estimates-travel">
-      <div>Estimates Travel time 11 Mins</div>
+      <div>Estimates Travel time {{ fairDetails?.duration_minutes }} Mins</div>
     </div>
     <div class="col-xs-12 mt-4 driver-info">
       <div class="row">
-        <div class="col-xs-6 d-flex align-items-center">
+        <div class="col-xs-6 col-sm-6 d-flex align-items-center p-0">
           <font-awesome-icon icon="circle-user" class="user-icon" />
           <div class="driver-details">
-            <label for="driver-name">Name: <span>XXXXXX</span></label>
-            <span>KA XX AS XXXX</span>
+            <label for="driver-name"><span>{{ userRideInfo?.mobile_no }}</span></label>
+            <span>{{ userRideInfo?.velc_no }}</span>
           </div>
         </div>
-        <div class="col-xs-6 auto-model-details">
+        <div class="col-xs-6 col-sm-6 auto-model-details p-0">
           <img :src="images.autoRickShaw" alt="autorickshaw" class="rickshaw" />
           <div>
-            <span class="fw-bold">Auto Model</span> - XXXX
+            <span class="fw-bold">Auto Model</span> - Mahindra
           </div>
         </div>
       </div>
     </div>
     <div class="col-xs-12 mt-4 heading-towards">
-      <span class="fw-bold">Heading Towards:</span> XXXXXXXXXXXX
+      <span class="fw-bold">Heading Towards:&nbsp;&nbsp;</span> {{ userRideInfo?.dest_address?.split(',')[0] }}
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import { images } from '../../../assets/images';
 import BookingMap from '../../Widgets/BookingMap.vue';
 import Mapbox from '../../Widgets/Mapbox.vue';
+import UserService from '../../../services/user.service';
+
+const userService = new UserService();
 
 export default {
   name: 'BookingConfirmation',
@@ -61,14 +65,38 @@ export default {
     ...mapGetters({
       sourceDetails: 'getSourceDetails',
       destinationDetails: 'getDestinationDetails',
+      fairDetails: 'getFairDetails',
+      userRideInfo: 'getUserRideInfo',
+      mobileNumber: 'getMobileNumber',
     }),
   },
   mounted() {
     this.initializeMap = false;
     this.sourceCoordinates = [this.sourceDetails.longitude, this.sourceDetails.latitude];
     this.destinationCoordinates = [this.destinationDetails.longitude, this.destinationDetails.latitude];
-    console.log(this.sourceCordinates, this.destinationCordinates)
     this.initializeMap = true;
+    this.rideStatus();
+  },
+  methods: {
+    ...mapActions([
+      'setUserRideInfo',
+    ]),
+    navigateToGoogleMap() {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${this.userRideInfo?.dest_latitude},${this.userRideInfo?.dest_longitude}`, '__blank')
+    },
+    async rideStatus() {
+      try {
+        const rideResponse = await userService.rideStatus(this.mobileNumber);
+        if (rideResponse?.data.ride_status === 'completed') {
+          this.setUserRideInfo({});
+          this.$router.push({ name: 'UserRideCompletion' });
+        } else {
+          this.rideStatus();
+        }
+      } catch (error) {
+        console.log(error); 
+      } 
+    }
   }
 };
 </script>
@@ -102,6 +130,13 @@ export default {
     border: 2px solid #ccc;
     border-radius: 5px;
     padding: 0 !important;
+
+    .google-map-icon {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      cursor: pointer;
+    }
   }
 
   .estimates-travel {
@@ -145,6 +180,7 @@ export default {
       justify-content: center;
       text-align: center;
       font-size: 12px;
+      margin-bottom: 15px;
 
       .rickshaw {
         width: 50px;

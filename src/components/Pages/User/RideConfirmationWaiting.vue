@@ -19,16 +19,17 @@
     <div class="col-xs-12">
       <img :src="images.logo" alt="urban-loop-logo" class="urban-loop-logo" />
     </div>
-    <button @click="$router.push({ name: 'UserBookingConfirmation' })">BOOKING CONFIRMED</button>
   </div>
 </template>
 
 <script>
 import { images } from '../../../assets/images';
 import DriverService from '../../../services/driver.service';
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
+import UserService from '../../../services/user.service';
 
 const driverService = new DriverService();
+const userService = new UserService();
 
 export default {
   name: 'RideConfirmationWaiting',
@@ -47,12 +48,16 @@ export default {
       destinationDetails: 'getDestinationDetails',
       userId: 'getUserId',
       fairDetails: 'getFairDetails',
+      mobileNumber: 'getMobileNumber',
     }),
   },
   mounted() {
     this.checkDriverAvialabilty();
   },
   methods: {
+    ...mapActions([
+      'setUserRideInfo',
+    ]),
     async checkDriverAvialabilty() {
       try {
         this.isLoading = true;
@@ -84,7 +89,20 @@ export default {
         };
         const rideResponse = await driverService.createRide(payload);
         if (rideResponse?.data?.message === 'Success') {
-          console.log(rideResponse);
+          this.rideStatus();
+        }
+      } catch (error) {
+        console.log(error); 
+      } 
+    },
+    async rideStatus() {
+      try {
+        const rideResponse = await userService.rideStatus(this.mobileNumber);
+        if (rideResponse?.data.ride_status === 'started') {
+          this.setUserRideInfo(rideResponse?.data);
+          this.$router.push({ name: 'UserBookingConfirmation' });
+        } else {
+          this.rideStatus();
         }
       } catch (error) {
         console.log(error); 

@@ -8,7 +8,8 @@
     </div>
     <div class="col-xs-12 ride-completion-content">
       <span>Please pay the total amount to the driver</span>
-      <h2>₹120 /-</h2>
+      <h2>₹{{ fairDetails?.fare_amount }} /-</h2>
+      <button class="btn btn-primary mt-2 px-3" @click="$router.push('/')">Back to home</button>
     </div>
     <div class="col-xs-12 footer">
       <div class="thanks-message">Thanks for choosing</div>
@@ -18,6 +19,7 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
 import { images } from '../../../assets/images';
 
 export default {
@@ -27,6 +29,11 @@ export default {
       images,
     };
   },
+  computed: {
+    ...mapGetters({
+      fairDetails: 'getFairDetails',
+    })
+  }
 };
 </script>
 
@@ -78,7 +85,7 @@ export default {
   }
 
   .footer {
-    margin-top: 60px;
+    margin-top: 40px;
     text-align: center;
 
     .thanks-message {

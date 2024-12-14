@@ -61,9 +61,9 @@ class DriverService {
     });
   }
 
-  acceptRideById(rideId) {
+  acceptRideById(rideId, driver_id) {
     return new Promise((resolve, reject) => {
-      axios.post('driver/accept_ride_id_reject_rem', { ride_id: rideId }).then((response) => {
+      axios.post('driver/accept_ride_id_reject_rem', { ride_id: rideId, driver_id }).then((response) => {
         return resolve(response);
       }).catch((error) => {
         return reject(error);
@@ -74,6 +74,57 @@ class DriverService {
   rejectRideById(rideId) {
     return new Promise((resolve, reject) => {
       axios.post('ride/cancel_ride', { ride_id: rideId }).then((response) => {
+        return resolve(response);
+      }).catch((error) => {
+        return reject(error);
+      });
+    });
+  }
+
+  stratRide(rideId) {
+    return new Promise((resolve, reject) => {
+      axios.post('driver/startRide', { ride_id: rideId }).then((response) => {
+        return resolve(response);
+      }).catch((error) => {
+        return reject(error);
+      });
+    });
+  }
+
+  endRide(rideId) {
+    return new Promise((resolve, reject) => {
+      axios.post('driver/ride_complete', { ride_id: rideId }).then((response) => {
+        return resolve(response);
+      }).catch((error) => {
+        return reject(error);
+      });
+    });
+  } 
+
+  // driver/getdriverride_info
+  rideInfo(mobile_num) {
+    return new Promise((resolve, reject) => {
+      axios.post('driver/getdriverride_info', { mobile_num }).then((response) => {
+        return resolve(response);
+      }).catch((error) => {
+        return reject(error);
+      });
+    });
+  } 
+
+  getDriverId(mobile_num) {
+    return new Promise((resolve, reject) => {
+      axios.post('driver/get_driver_id', { mobile_num }).then((response) => {
+        return resolve(response);
+      }).catch((error) => {
+        return reject(error);
+      });
+    });
+  }
+
+  isValidDriver(driver_id) {
+    return new Promise((resolve, reject) => {
+      axios.post('driver/check_valid_driver', { driver_id }).then((response) => {
         return resolve(response);
       }).catch((error) => {
         return reject(error);

@@ -8,7 +8,7 @@ import store from './store';
 
 const app = createApp(App);
 
-app.use(router); // Use the router in the app
+app.use(router);
 app.use(store);
 app.component('font-awesome-icon', FontAwesomeIcon);
 app.mount('#app');

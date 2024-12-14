@@ -2,13 +2,14 @@
   <div class="row main-container">
     <div class="col-xs-12 text-center">
       <img :src="images.autoRickShaw" width="70px" alt="Auto Rickshaw" />
+      <img :src="images.qrImageIcon" class="qr-icon" alt="QR Image" @click="$router.push({ name: 'DriverInfo' })" />
       <img :src="images.flashRideLogo" width="100%" class="mt-2" alt="Flash Ride Logo" />
       <div v-if="rideDetails?.length" class="rides-container">
         <div v-for="(ride) in rideDetails" :key="ride?.ride_id" class="card ride-card">
           <div class="card-body">
             <p class="card-text mb-1">
               <b>Destination - </b>
-              <span>{{ ride?.dest_addr?.split(',')[0] }}</span>
+              <span>{{ ride?.dest_address?.split(',')[0] }}</span>
             </p>
             <div class="row">
               <div class="col-xs-6 col-sm-6 text-center">
@@ -36,7 +37,7 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import { images } from '../../../assets/images';
 import DriverService from '../../../services/driver.service';
 
@@ -50,13 +51,33 @@ export default {
       rideDetails: [],
     };
   },
+  computed: {
+    ...mapGetters({
+      driverId: 'getDriverId',
+    }),
+  },
   mounted() {
-    this.getActiveRides();
+    this.getRideInfo();
   },
   methods: {
     ...mapActions([
       'setDriverActiveRideDetails',
     ]),
+    async getRideInfo() {
+      try {
+        const rideResponse = await driverService.rideInfo('9876543210');
+        if (rideResponse?.status === 200) {
+          if (rideResponse?.data?.ride_status === 'started' || rideResponse?.data?.ride_status === 'accepted') {
+            this.setDriverActiveRideDetails(rideResponse?.data);
+            this.$router.push({ name: 'DriverRideConfirmation' });
+          } else {
+            this.getActiveRides();  
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    },
     async getActiveRides() {
       try {
         const activeRidesResponse = await driverService.getActiveRides('9876543210');
@@ -70,7 +91,7 @@ export default {
     },
     async acceptRide(rideDetails) {
       try {
-        const rideResponse = await driverService.acceptRideById(rideDetails?.ride_id);
+        const rideResponse = await driverService.acceptRideById(rideDetails?.ride_id, this.driverId);
         if (rideResponse?.status === 200) {
           this.setDriverActiveRideDetails(rideDetails);
           this.$router.push({ name: 'DriverRideConfirmation' });
@@ -99,6 +120,14 @@ export default {
 <style lang="scss">
 .main-container {
   font-family: Arial, Helvetica, sans-serif;
+
+  .qr-icon {
+    position: absolute;
+    top: 4px;
+    right: 10px;
+    width: 40px;
+    cursor: pointer;
+  }
 
   .rides-container {
     max-height: 55vh;

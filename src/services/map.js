@@ -20,6 +20,16 @@ class MapService {
       });
     })
   }
+
+  getLocationName(long, lat) {
+    return new Promise((resolve, reject) => {
+      axios.post('/map/get_location_name', { long, lat}).then((response) => {
+        return resolve(response);
+      }).catch((error) => {
+        return reject(error);
+      });
+    });
+  }
 };
 
 export default MapService;
