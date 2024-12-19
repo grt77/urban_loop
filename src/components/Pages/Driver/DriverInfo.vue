@@ -14,6 +14,7 @@
 <script>
 import VueQrcode from 'vue-qrcode';
 import DriverService from '../../../services/driver.service';
+import { mapGetters } from 'vuex/dist/vuex.cjs.js';
 
 const driverService = new DriverService();
 
@@ -28,6 +29,11 @@ export default {
   components: {
     VueQrcode,
   },
+  computed: {
+    ...mapGetters({
+      driverMobileNumber: 'getDriverMobileNumber',
+    }),
+  },
   mounted() {
     this.getDriverId();
   },
@@ -37,8 +43,7 @@ export default {
     },
     async getDriverId() {
       try {
-        const driverResponse = await driverService.getDriverId('9876543210');
-        console.log(driverResponse);
+        const driverResponse = await driverService.getDriverId(this.driverMobileNumber);
         this.driverInfo = driverResponse?.data || {};
         this.dataUrl = `http://localhost:5173/?driver_id=${driverResponse?.data?.driver_id}`;
         console.log(this.dataUrl);

@@ -83,7 +83,8 @@ export default {
   },
   computed: {
     ...mapGetters({
-      currentRideDetails: 'getDriverActiveRideDetails'
+      currentRideDetails: 'getDriverActiveRideDetails',
+      driverMobileNumber: 'getDriverMobileNumber',
     }),
   },
   mounted() {
@@ -116,7 +117,7 @@ export default {
     },
     async getRideInfo() {
       try {
-        const rideResponse = await driverService.rideInfo('9876543210');
+        const rideResponse = await driverService.rideInfo(this.driverMobileNumber);
         if (rideResponse?.status === 200) {
           console.log(rideResponse);
           this.isRideStarted = rideResponse?.data?.ride_status === 'accepted' ? false : true;

@@ -41,6 +41,7 @@
 import { debounce } from 'lodash';
 import { images } from '../../../assets/images';
 import DriverService from '../../../services/driver.service';
+import { mapActions } from 'vuex';
 
 const driverService = new DriverService();
 
@@ -59,6 +60,9 @@ export default {
     };
   },
   methods: {
+    ...mapActions([
+      'setDriverMobileNumber'
+    ]),
     validateMobileNumber() {
       const indianMobilePattern = /^[6-9]\d{9}$/;
       this.mobileNumberError = indianMobilePattern.test(this.mobileNumber)
@@ -88,6 +92,7 @@ export default {
           const otpDetails = await driverService.verifyOtp(this.mobileNumber, this.otp);
           if (otpDetails?.data?.message === 'Validated') {
             localStorage?.setItem('authToken', otpDetails?.data?.Auth);
+            this.setDriverMobileNumber(this.mobileNumber);
             this.$router.push({ name: 'DriverRideDecision'});
           }
         } catch (error) {
