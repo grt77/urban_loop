@@ -10,11 +10,12 @@
         <span v-else-if="!isDriverAviable && isDriverVerfied">Driver is on other Ride</span>
         <span v-else-if="isDriverAviable && !isDriverVerfied">Driver is not verified</span>
         <span v-else-if="!isDriverAviable && !isDriverVerfied">Driver not found</span>
+        <span v-else-if="isDriverAccepted">Driver is Accepted. Waiting to start the ride</span>
         <span v-else>Waiting for Driver's Confirmation</span>
       </div>
     </div>
     <div class="col-xs-12 form-group">
-      <button  v-if="!isLoading && isDriverAviable && isDriverVerfied" class="cancel-request-btn">Cancel Request</button>
+      <!-- <button  v-if="!isLoading && isDriverAviable && isDriverVerfied" class="cancel-request-btn">Cancel Request</button> -->
     </div>
     <div class="col-xs-12">
       <img :src="images.logo" alt="urban-loop-logo" class="urban-loop-logo" />
@@ -38,6 +39,7 @@ export default {
       isLoading: false,
       isDriverAviable: false,
       isDriverVerfied: false,
+      isDriverAccepted: false,
       images,
     };
   },
@@ -57,6 +59,8 @@ export default {
   methods: {
     ...mapActions([
       'setUserRideInfo',
+      'setIsLoading',
+      'setLoadingMessage',
     ]),
     async checkDriverAvialabilty() {
       try {
@@ -68,13 +72,15 @@ export default {
           this.createRide();
         }
       } catch (error) {
-        console.log(error);
+        toast.error('Failed to verified the driver. Please try again');
       } finally {
         this.isLoading = false;
       }
     },
     async createRide() {
       try {
+        this.setIsLoading(true);
+        this.setLoadingMessage('Creating the Ride. Please wait...');
         const payload = {
           driver_id: this.driverId,
           origin_lat: this.sourceDetails?.latitude,
@@ -92,20 +98,27 @@ export default {
           this.rideStatus();
         }
       } catch (error) {
-        console.log(error); 
-      } 
+        toast.error('Failed to create ride. Please try again'); 
+      } finally {
+        this.setIsLoading(false);
+        this.setLoadingMessage('');
+      }
     },
     async rideStatus() {
       try {
         const rideResponse = await userService.rideStatus(this.mobileNumber);
         if (rideResponse?.data.ride_status === 'started') {
+          this.isDriverAccepted = false;
           this.setUserRideInfo(rideResponse?.data);
           this.$router.push({ name: 'UserBookingConfirmation' });
         } else {
+          if (rideResponse?.data.ride_status === 'accepted') {
+            this.isDriverAccepted = true;
+          }
           this.rideStatus();
         }
       } catch (error) {
-        console.log(error); 
+        toast.error('Failed to fetch ride details'); 
       } 
     }
   }

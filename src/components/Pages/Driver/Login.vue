@@ -42,6 +42,7 @@ import { debounce } from 'lodash';
 import { images } from '../../../assets/images';
 import DriverService from '../../../services/driver.service';
 import { mapActions } from 'vuex';
+import { toast } from '@steveyuowo/vue-hot-toast';
 
 const driverService = new DriverService();
 
@@ -61,7 +62,9 @@ export default {
   },
   methods: {
     ...mapActions([
-      'setDriverMobileNumber'
+      'setDriverMobileNumber',
+      'setIsLoading',
+      'setLoadingMessage'
     ]),
     validateMobileNumber() {
       const indianMobilePattern = /^[6-9]\d{9}$/;
@@ -80,15 +83,22 @@ export default {
     async handleLogin() {
       if (this.isMobileNumberPage) {
         try {
+          this.setIsLoading(true);
+          this.setLoadingMessage('Processing your login request. Sending OTP...');
           const loginDetails = await driverService.loginByMobileNumber(this.mobileNumber);
           if (loginDetails?.data?.message === 'Success') {
             this.isMobileNumberPage = false;
           }
         } catch (error) {
-          console.log(error);
+          toast.error('Failed to send OTP. Please try again.');
+        } finally {
+          this.setIsLoading(false);
+          this.setLoadingMessage('');
         }
       } else {
         try {
+          this.setIsLoading(true);
+          this.setLoadingMessage('Validating your OTP, please wait...');
           const otpDetails = await driverService.verifyOtp(this.mobileNumber, this.otp);
           if (otpDetails?.data?.message === 'Validated') {
             localStorage?.setItem('authToken', otpDetails?.data?.Auth);
@@ -96,7 +106,10 @@ export default {
             this.$router.push({ name: 'DriverRideDecision'});
           }
         } catch (error) {
-          console.log(error);
+          toast.error('Invalid OTP. Please try again')
+        } finally {
+          this.setIsLoading(false);
+          this.setLoadingMessage('');
         }
       }
     }

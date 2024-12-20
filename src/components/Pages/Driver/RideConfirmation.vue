@@ -52,7 +52,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import { images } from '../../../assets/images';
 import Mapbox from '../../Widgets/Mapbox.vue';
 import BookingMap from '../../Widgets/BookingMap.vue';
@@ -96,54 +96,69 @@ export default {
     this.getRideInfo();
   },
   methods: {
+    ...mapActions([
+      'setIsLoading',
+      'setLoadingMessage',
+    ]),
     async getFairDetails() {
       try {
+        this.setIsLoading(true);
+        this.setLoadingMessage('Fetching the fair and ride info details. Please wait...');
         const fairPayload = {
           origin_lat: this.sourceCoordinates[1],
           origin_lon: this.sourceCoordinates[0],
           dest_lat: this.destinationCoordinates[1],
           dest_lon: this.destinationCoordinates[0]
         };
-
         const fairResponse = await fairService.getAutoFare(fairPayload);
-        console.log(fairResponse)
         if (fairResponse.status = 200 && fairResponse?.data) {
-          console.log(fairResponse);
           this.estimatedMinutes = fairResponse?.data?.duration_minutes || 0;
         }
       } catch (error) {
-        console.log(error);
+        toast.error('Failed to fetch fair details. Please try again');
       }
     },
     async getRideInfo() {
       try {
         const rideResponse = await driverService.rideInfo(this.driverMobileNumber);
         if (rideResponse?.status === 200) {
-          console.log(rideResponse);
           this.isRideStarted = rideResponse?.data?.ride_status === 'accepted' ? false : true;
         }
       } catch (error) {
-        console.log(error);
+        toast.error('Failed to fetch ride info details. Please try again');
+      } finally {
+        this.setIsLoading(false);
+        this.setLoadingMessage('');
       }
     },
     async onRideStarted() {
       try {
+        this.setIsLoading(true);
+        this.setLoadingMessage('Starting the ride. Please wait...');
         const completeRideResponse = await driverService.stratRide(this.currentRideDetails?.ride_id);
         if (completeRideResponse.status === 200) {
           this.isRideStarted = true;
         }
       } catch (error) {
-        console.log(error);
+        toast.error('Failed to start ride. Please try again');
+      } finally {
+        this.setIsLoading(false);
+        this.setLoadingMessage('');
       }
     },
     async onRideEnded() {
       try {
+        this.setIsLoading(true);
+        this.setLoadingMessage('Ending the ride. Please wait...');
         const completeRideResponse = await driverService.endRide(this.currentRideDetails?.ride_id);
         if (completeRideResponse.status === 200) {
           this.$router.push({ name: 'DriverFinalFareCollection' });
         }
       } catch (error) {
-        console.log(error);
+        toast.error('Failed to end ride. Please try again');
+      } finally {
+        this.setIsLoading(false);
+        this.setLoadingMessage('');
       }
     },
     navigateToGoogleMap() {

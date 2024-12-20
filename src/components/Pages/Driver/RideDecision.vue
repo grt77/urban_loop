@@ -54,51 +54,70 @@ export default {
   computed: {
     ...mapGetters({
       driverId: 'getDriverId',
+      driverInfo: 'getDriverInfo',
       driverMobileNumber: 'getDriverMobileNumber',
     }),
   },
   mounted() {
+    this.getDriverId();
     this.getRideInfo();
   },
   methods: {
     ...mapActions([
+      'setIsLoading',
+      'setLoadingMessage',
       'setDriverActiveRideDetails',
+      'setDriverInfo',
     ]),
+    async getDriverId() {
+      try {
+        const driverResponse = await driverService.getDriverId(this.driverMobileNumber);
+        this.setDriverInfo(driverResponse?.data || {});
+      } catch (error) {
+        toast.error('Failed to fetch driver info');
+      }
+    },
     async getRideInfo() {
       try {
+        this.setIsLoading(true);
+        this.setLoadingMessage('Fetching your active rides. Please wait...');
         const rideResponse = await driverService.rideInfo(this.driverMobileNumber);
         if (rideResponse?.status === 200) {
           if (rideResponse?.data?.ride_status === 'started' || rideResponse?.data?.ride_status === 'accepted') {
             this.setDriverActiveRideDetails(rideResponse?.data);
+            this.setIsLoading(false);
+            this.setLoadingMessage('');
             this.$router.push({ name: 'DriverRideConfirmation' });
           } else {
             this.getActiveRides();  
           }
         }
       } catch (error) {
-        console.log(error);
+        toast.error('Failed to fetch your ride info details. Please try again');
       }
     },
     async getActiveRides() {
       try {
         const activeRidesResponse = await driverService.getActiveRides(this.driverMobileNumber);
         if (activeRidesResponse) {
-          console.log(activeRidesResponse);
           this.rideDetails = [...activeRidesResponse?.data];
         }
       } catch (error) {
-        console.log(error);
+        toast.error('Failed to fetch your active rides. Please try again');
+      } finally {
+        this.setIsLoading(false);
+        this.setLoadingMessage('');
       }
     },
     async acceptRide(rideDetails) {
       try {
-        const rideResponse = await driverService.acceptRideById(rideDetails?.ride_id, this.driverId);
+        const rideResponse = await driverService.acceptRideById(rideDetails?.ride_id, this.driverInfo?.driver_id);
         if (rideResponse?.status === 200) {
           this.setDriverActiveRideDetails(rideDetails);
           this.$router.push({ name: 'DriverRideConfirmation' });
         }
       } catch (error) {
-        console.log(error);
+        toast.error('Failed to accept the ride. Please try again');
       }
     },
     async rejectRide(rideId) {
@@ -111,7 +130,7 @@ export default {
           }
         }
       } catch (error) {
-        console.log(error);
+        toast.error('Failed to reject the ride. Please try again');
       }
     },
   }

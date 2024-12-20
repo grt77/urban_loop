@@ -42,6 +42,7 @@ import { mapGetters } from "vuex";
 import OtpService from "../../../services/otp.service";
 import DriverService from "../../../services/driver.service";
 import { mapActions } from "vuex/dist/vuex.cjs.js";
+import { toast } from "@steveyuowo/vue-hot-toast";
 
 const otpService = new OtpService();
 const driverService = new DriverService();
@@ -69,6 +70,8 @@ export default {
   methods: {
     ...mapActions([
       'setUserId',
+      'setIsLoading',
+      'setLoadingMessage'
     ]),
     validateOtp() {
       const otpRegex = /^\d{6}$/; // Regex for exactly 6 digits
@@ -80,6 +83,8 @@ export default {
     },
     async verifyOtp() {
       try {
+        this.setIsLoading(true);
+        this.setLoadingMessage('Validating your OTP, please wait...');
         const otpResult = await otpService.verifyOtp(this.mobileNumber, this.otp);
         if (otpResult) {
           localStorage.setItem('authToken', otpResult?.data?.auth || otpResult?.data?.Auth);
@@ -87,17 +92,20 @@ export default {
           this.$router.push({ name: 'UserRideConfirmationWaiting' });
         }
       } catch (error) {
-        console.log(error); 
+        toast.error('OTP validation failed. Please try again.');
+      } finally {
+        this.setIsLoading(false);
+        this.setLoadingMessage('');
       }
     },
     async getUserDetails() {
       try {
         const userDetails = await driverService.getDriverDetails(this.mobileNumber);
         if (userDetails) {
-          this.setUserId(userDetails?.data?.id);
+          this.setUserId(userDetails?.data?.id?.id || userDetails?.data?.id);
         }
       } catch (error) {
-        console.log(error); 
+        toast.error('Failed to fetch user details');
       }
     }
   },
@@ -197,7 +205,7 @@ export default {
   }
 
   .urban-loop-logo {
-    margin-top: 80px;
+    margin-top: 50px;
     width: 100%;
   }
 }

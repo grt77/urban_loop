@@ -42,6 +42,7 @@ import { images } from '../../../assets/images';
 import BookingMap from '../../Widgets/BookingMap.vue';
 import Mapbox from '../../Widgets/Mapbox.vue';
 import UserService from '../../../services/user.service';
+import { toast } from '@steveyuowo/vue-hot-toast';
 
 const userService = new UserService();
 
@@ -94,7 +95,7 @@ export default {
           this.rideStatus();
         }
       } catch (error) {
-        console.log(error); 
+        toast.error('Failed to fetch ride status. Please try again.')
       } 
     }
   }

@@ -1,5 +1,6 @@
 <template>
-  <div v-if="isDriverValid" class="row location-selector-container">
+  <!-- <Loader v-if="isLoading" :label="loadingMessage" /> -->
+  <div v-if="isLoading || isDriverValid" class="row location-selector-container">
     <header class="col-xs-12 header-container">
       <img class="rickshaw" :src="images.autoRickShaw" alt="Rickshaw" width="70px" />
       <img class="urban-loop-logo" :src="images.logo" alt="Urban Loop Logo" width="80%" />
@@ -21,6 +22,9 @@
     </section>
 
     <section class="col-xs-12 form-group">
+      <div v-if="isSourceLoading" class="spinner-container">
+        <div class="spinner-border"></div>
+      </div>
       <font-awesome-icon icon="search" class="search-icon" />
       <input
         v-model="source"
@@ -43,6 +47,9 @@
     </section>
 
     <section class="col-xs-12 form-group">
+      <div v-if="isDestinationLoading" class="spinner-container">
+        <div class="spinner-border"></div>
+      </div>
       <font-awesome-icon icon="search" class="search-icon" />
       <input
         v-model="destination"
@@ -81,7 +88,7 @@
     </section>
 
     <section class="col-xs-12 form-group">
-      <button class="confirm-button" @click="handleOTPAndFairService">Confirm</button>
+      <button class="confirm-button" :class="(!source || !destination || !mobileNumber || mobileNumberError) ? 'disabled' : ''" @click="handleOTPAndFairService">Confirm</button>
     </section>
   </div>
   <div v-else class="driver-not-found">
@@ -92,14 +99,16 @@
 <script>
 import { debounce } from 'lodash';
 import MapBox from '../../Widgets/Mapbox.vue';
+import Loader from '../../Widgets/Loader.vue';
 import { images } from '../../../assets/images';
 import MapService from '../../../services/map';
 import { generateSessionId } from '../../../utils/helper';
 import { EPathConfig } from '../../../utils/constant';
 import OtpService from '../../../services/otp.service';
 import FairService from '../../../services/fair.service';
-import { mapActions } from 'vuex';
+import { mapActions, mapGetters } from 'vuex';
 import DriverService from '../../../services/driver.service';
+import { toast } from '@steveyuowo/vue-hot-toast';
 
 const mapService = new MapService();
 const otpService = new OtpService();
@@ -108,7 +117,7 @@ const driverService = new DriverService();
 
 export default {
   name: 'LocationSelector',
-  components: { MapBox },
+  components: { MapBox, Loader },
   data() {
     return {
       source: '',
@@ -141,15 +150,22 @@ export default {
       'setSourceDetails',
       'setDestinationDetails',
       'setDriverId',
+      'setIsLoading',
+      'setLoadingMessage'
     ]),
     async isValidDriver(driverId) {
       try {
+        this.setIsLoading(true);
+        this.setLoadingMessage('Please wait while we verify the driver...');
+        // this.loadingMessage = ;
         const driverResponse = await driverService.isValidDriver(driverId);
-        console.log(driverResponse)
         this.isDriverValid = driverResponse?.data?.exists;
         this.setDriverId(this.$route?.query?.driver_id);
       } catch (error) {
-        console.error(error);
+        toast.error('Unable to verify the driver details. Please try again')
+      } finally {
+        this.setIsLoading(false);
+        this.setLoadingMessage();
       }
     },
     async searchSourceLocation() {
@@ -165,7 +181,7 @@ export default {
         const response = await mapService.getNearLocations(payload);
         this.sourcePlaces = response?.data || [];
       } catch (error) {
-        console.error(error);
+        toast.error('Failed to fetch source location. Please try again');
       } finally {
         this.isSourceLoading = false;
       }
@@ -183,7 +199,7 @@ export default {
         const response = await mapService.getNearLocations(payload);
         this.destinationPlaces = response?.data || [];
       } catch (error) {
-        console.error(error);
+        toast.error('Failed to fetch destination location. Please try again');
       } finally {
         this.isDestinationLoading = false;
       }
@@ -207,7 +223,7 @@ export default {
           this.resetPlaceFlag('placeDestinationLocation');
         }
       } catch (error) {
-        console.error(error);
+        toast.error('Failed to get location details');
       }
     },
     resetPlaceFlag(flag) {
@@ -217,6 +233,7 @@ export default {
       }, 2000);
     },
     async setCurrentLocation() {
+      this.isSourceLoading = true;
       const { latitude, longitude } = await this.fetchCurrentLocation();
       try {
         const locationResponse = await mapService.getLocationName(longitude, latitude);
@@ -225,15 +242,9 @@ export default {
         this.sourcePlaces = [];
         this.resetPlaceFlag('placeCurrentLocation');
       } catch (error) {
-        console.log(error);
-      }
-    },
-    async getLocationName(long, lat) {
-      try {
-        const locationResponse = await mapService.getLocationName(long, lat);
-        console.log(locationResponse);
-      } catch (error) {
-        console.log(error);
+        toast.error('Failed to fetch current location name. Please try again');
+      } finally {
+        this.isSourceLoading = false;
       }
     },
     fetchCurrentLocation() {
@@ -241,15 +252,19 @@ export default {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             (position) => {
-              resolve({
+              return resolve({
                 latitude: position.coords.latitude,
                 longitude: position.coords.longitude,
               });
             },
-            (error) => reject(error.message || 'Failed to fetch location.')
+            (error) => {
+              toast.error(error.message || 'Failed to fetch location.');
+              return reject(error.message || 'Failed to fetch location.')
+            }
           );
         } else {
-          reject('Geolocation is not supported by this browser.');
+          toast.error('Geolocation is not supported by this browser.');
+          return reject('Geolocation is not supported by this browser.');
         }
       });
     },
@@ -260,39 +275,46 @@ export default {
         : 'Invalid mobile number';
     },
     async handleOTPAndFairService() {
-      try {
-        // Define the payload for the fair service
-        const fairPayload = {
-          origin_lat: this.sourceCordinates[1],
-          origin_lon: this.sourceCordinates[0],
-          dest_lat: this.destinationCordinates[1],
-          dest_lon: this.destinationCordinates[0]
-        };
-
-        const [otpResponse, autoFairResponse] = await Promise.all([
-          otpService.sendOtp(this.mobileNumber), // OTP service call
-          fairService.getAutoFare(fairPayload)  // Fair service call
-        ]);
-
-        // Handle OTP response
-        if (otpResponse && autoFairResponse) {
-          this.setFairDetails({ ...autoFairResponse.data });
-          this.setSourceDetails({
-            latitude: this.sourceCordinates[1],
-            longitude: this.sourceCordinates[0],
-            address: this.source,
-          });
-          this.setDestinationDetails({
-            latitude: this.destinationCordinates[1],
-            longitude: this.destinationCordinates[0],
-            address: this.destination,
-          });
-          this.setMobileNumber(this.mobileNumber);
-          this.$router.push({ name: 'UserFairDetails' });
+      if (this.source && this.destination && this.mobileNumber && !this.mobileNumberError) {
+        try {
+          this.setIsLoading(true);
+          this.setLoadingMessage('Sending OTP and fetching fare details...');
+          // Define the payload for the fair service
+          const fairPayload = {
+            origin_lat: this.sourceCordinates[1],
+            origin_lon: this.sourceCordinates[0],
+            dest_lat: this.destinationCordinates[1],
+            dest_lon: this.destinationCordinates[0]
+          };
+  
+          const [otpResponse, autoFairResponse] = await Promise.all([
+            otpService.sendOtp(this.mobileNumber), // OTP service call
+            fairService.getAutoFare(fairPayload)  // Fair service call
+          ]);
+  
+          // Handle OTP response
+          if (otpResponse && autoFairResponse) {
+            this.setFairDetails({ ...autoFairResponse.data });
+            this.setSourceDetails({
+              latitude: this.sourceCordinates[1],
+              longitude: this.sourceCordinates[0],
+              address: this.source,
+            });
+            this.setDestinationDetails({
+              latitude: this.destinationCordinates[1],
+              longitude: this.destinationCordinates[0],
+              address: this.destination,
+            });
+            this.setMobileNumber(this.mobileNumber);
+            this.$router.push({ name: 'UserFairDetails' });
+          }
+  
+        } catch (error) {
+          toast.error('Unable to fetch details or send OTP. Please try again.');
+        } finally {
+          this.setIsLoading(false);
+          this.setLoadingMessage('');
         }
-
-      } catch (error) {
-        console.error('Error occurred:', error);
       }
     }
   },
@@ -333,6 +355,19 @@ export default {
 
   .form-group {
     position: relative;
+
+    .spinner-container {
+      position: absolute;
+      right: 20px;
+      top: 15px;
+      font-size: 13px;
+      color: gray;
+
+      .spinner-border {
+        width: 1.3rem;
+        height: 1.3rem;
+      }
+    }
 
     .input-group-text {
       height: 2.6rem;
@@ -431,6 +466,11 @@ export default {
       width: 100%;
       margin-top: 10px;
       border-radius: 5px;
+    }
+
+    .confirm-button.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   }
 }
