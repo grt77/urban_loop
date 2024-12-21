@@ -92,6 +92,7 @@ export default {
           price: this.fairDetails?.fare_amount,
           user_id: this.userId,
           ride_status: 'requested',
+          user_mobile: this.mobileNumber,
         };
         const rideResponse = await driverService.createRide(payload);
         if (rideResponse?.data?.message === 'Success') {

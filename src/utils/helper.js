@@ -5,4 +5,12 @@ export const generateSessionId = () => {
   return uuidv4().replace(/-/g, '').slice(0, 16);
 }
 
+export const getItemFromLocalStorage = (key) => {
+  return localStorage.getItem(key);
+}
+
+export const setItemInLocalStorage = (key, value) => {
+  localStorage.setItem(key, value);
+}
+
   

@@ -43,6 +43,7 @@ import { images } from '../../../assets/images';
 import DriverService from '../../../services/driver.service';
 import { mapActions } from 'vuex';
 import { toast } from '@steveyuowo/vue-hot-toast';
+import { setItemInLocalStorage } from '../../../utils/helper';
 
 const driverService = new DriverService();
 
@@ -90,6 +91,7 @@ export default {
             this.isMobileNumberPage = false;
           }
         } catch (error) {
+          console.log(error);
           toast.error('Failed to send OTP. Please try again.');
         } finally {
           this.setIsLoading(false);
@@ -101,11 +103,13 @@ export default {
           this.setLoadingMessage('Validating your OTP, please wait...');
           const otpDetails = await driverService.verifyOtp(this.mobileNumber, this.otp);
           if (otpDetails?.data?.message === 'Validated') {
-            localStorage?.setItem('authToken', otpDetails?.data?.Auth);
+            localStorage?.setItem('accessToken', otpDetails?.data?.Auth);
+            setItemInLocalStorage('driver_mobile_number', this.mobileNumber);
             this.setDriverMobileNumber(this.mobileNumber);
             this.$router.push({ name: 'DriverRideDecision'});
           }
         } catch (error) {
+          console.log(error);
           toast.error('Invalid OTP. Please try again')
         } finally {
           this.setIsLoading(false);

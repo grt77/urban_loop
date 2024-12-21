@@ -87,7 +87,7 @@ export default {
         this.setLoadingMessage('Validating your OTP, please wait...');
         const otpResult = await otpService.verifyOtp(this.mobileNumber, this.otp);
         if (otpResult) {
-          localStorage.setItem('authToken', otpResult?.data?.auth || otpResult?.data?.Auth);
+          localStorage.setItem('accessToken', otpResult?.data?.auth || otpResult?.data?.Auth);
           this.getUserDetails();
           this.$router.push({ name: 'UserRideConfirmationWaiting' });
         }

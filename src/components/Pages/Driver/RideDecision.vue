@@ -40,6 +40,8 @@
 import { mapActions, mapGetters } from 'vuex';
 import { images } from '../../../assets/images';
 import DriverService from '../../../services/driver.service';
+import { toast } from '@steveyuowo/vue-hot-toast';
+import { getItemFromLocalStorage, setItemInLocalStorage } from '../../../utils/helper';
 
 const driverService = new DriverService();
 
@@ -49,6 +51,7 @@ export default {
     return {
       images,
       rideDetails: [],
+      isRideAceepted: false,
     };
   },
   computed: {
@@ -59,6 +62,10 @@ export default {
     }),
   },
   mounted() {
+    const driverMobileNumber = getItemFromLocalStorage('driver_mobile_number');
+    if (driverMobileNumber) {
+      this.setDriverMobileNumber(driverMobileNumber);
+    }
     this.getDriverId();
     this.getRideInfo();
   },
@@ -68,6 +75,7 @@ export default {
       'setLoadingMessage',
       'setDriverActiveRideDetails',
       'setDriverInfo',
+      'setDriverMobileNumber',
     ]),
     async getDriverId() {
       try {
@@ -89,30 +97,36 @@ export default {
             this.setLoadingMessage('');
             this.$router.push({ name: 'DriverRideConfirmation' });
           } else {
-            this.getActiveRides();  
+            this.getActiveRides();
           }
         }
       } catch (error) {
         toast.error('Failed to fetch your ride info details. Please try again');
+      } finally {
+        this.setIsLoading(false);
+        this.setLoadingMessage('');
       }
     },
     async getActiveRides() {
       try {
         const activeRidesResponse = await driverService.getActiveRides(this.driverMobileNumber);
-        if (activeRidesResponse) {
+        if (activeRidesResponse?.data?.length) {
           this.rideDetails = [...activeRidesResponse?.data];
+        }
+        console.log(this.isRideAceepted)
+        if (!this.isRideAceepted) {
+          this.getActiveRides();
         }
       } catch (error) {
         toast.error('Failed to fetch your active rides. Please try again');
-      } finally {
-        this.setIsLoading(false);
-        this.setLoadingMessage('');
       }
     },
     async acceptRide(rideDetails) {
       try {
         const rideResponse = await driverService.acceptRideById(rideDetails?.ride_id, this.driverInfo?.driver_id);
         if (rideResponse?.status === 200) {
+          // clearInterval(this.rideInterval);
+          this.isRideAceepted = true;
           this.setDriverActiveRideDetails(rideDetails);
           this.$router.push({ name: 'DriverRideConfirmation' });
         }
