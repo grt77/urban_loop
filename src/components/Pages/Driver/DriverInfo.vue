@@ -3,7 +3,6 @@
     <vue-qrcode
       style="width: 100%;"
       :value="dataUrl"
-      @change="onDataUrlChange"
     />
   </div>
   <div>
@@ -14,6 +13,7 @@
 <script>
 import VueQrcode from 'vue-qrcode';
 import DriverService from '../../../services/driver.service';
+import { mapGetters } from 'vuex';
 
 const driverService = new DriverService();
 
@@ -21,30 +21,18 @@ export default {
   name: 'DriverInfo',
   data() {
     return {
-      dataUrl: '',
-      driverInfo: {},
     }
   },
   components: {
     VueQrcode,
   },
-  mounted() {
-    this.getDriverId();
-  },
-  methods: {
-    onDataUrlChange(dataUrl) {
-      this.dataUrl = dataUrl;
-    },
-    async getDriverId() {
-      try {
-        const driverResponse = await driverService.getDriverId('9876543210');
-        console.log(driverResponse);
-        this.driverInfo = driverResponse?.data || {};
-        this.dataUrl = `http://localhost:5173/?driver_id=${driverResponse?.data?.driver_id}`;
-        console.log(this.dataUrl);
-      } catch (error) {
-        console.log(error);
-      }
+  computed: {
+    ...mapGetters({
+      driverMobileNumber: 'getDriverMobileNumber',
+      driverInfo: 'getDriverInfo',
+    }),
+    dataUrl() {
+      return `http://localhost:5173/?driver_id=${this.driverInfo?.driver_id}`;
     }
   },
 }

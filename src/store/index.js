@@ -1,5 +1,5 @@
 import { createStore } from 'vuex';
-import { SET_DESTINATION_DETAILS, SET_DRIVER_ACTIVE_DETAILS, SET_DRIVER_ID, SET_FAIR_DETAILS, SET_MOBILE_NUMBER, SET_SOURCE_DETAILS, SET_USER_ID, SET_USER_RIDE_INFO } from './mutation-types';
+import { SET_DESTINATION_DETAILS, SET_DRIVER_ACTIVE_DETAILS, SET_DRIVER_ID, SET_DRIVER_INFO, SET_DRIVER_MOBILE_NUMBER, SET_FAIR_DETAILS, SET_IS_LOADING, SET_LOADING_MESSAGE, SET_MOBILE_NUMBER, SET_SOURCE_DETAILS, SET_USER_ID, SET_USER_RIDE_INFO } from './mutation-types';
 
 const store = createStore({
   state: {
@@ -11,6 +11,10 @@ const store = createStore({
     destinationDetails: {},
     driverActiveRideDetails: {},
     userRideInfo: {},
+    driverMobileNumber: null,
+    isLoading: false,
+    loadingMessage: '',
+    driverInfo: null,
   },
   mutations: {
     [SET_FAIR_DETAILS](state, payload) {
@@ -36,6 +40,18 @@ const store = createStore({
     },
     [SET_USER_RIDE_INFO](state, payload) {
       state.userRideInfo = payload;
+    },
+    [SET_DRIVER_MOBILE_NUMBER](state, payload) {
+      state.driverMobileNumber = payload;
+    },
+    [SET_IS_LOADING](state, payload) {
+      state.isLoading = payload;
+    },
+    [SET_LOADING_MESSAGE](state, payload) {
+      state.loadingMessage = payload;
+    },
+    [SET_DRIVER_INFO](state, payload) {
+      state.driverInfo = payload;
     },
   },
   actions: {
@@ -63,6 +79,18 @@ const store = createStore({
     setUserRideInfo({ commit }, payload) {
       commit(SET_USER_RIDE_INFO, payload);
     },
+    setDriverMobileNumber({ commit }, payload) {
+      commit(SET_DRIVER_MOBILE_NUMBER, payload);
+    },
+    setIsLoading({ commit }, payload) {
+      commit(SET_IS_LOADING, payload);
+    },
+    setLoadingMessage({ commit }, payload) {
+      commit(SET_LOADING_MESSAGE, payload);
+    },
+    setDriverInfo({ commit }, payload) {
+      commit(SET_DRIVER_INFO, payload);
+    },
   },
   getters: {
     getFairDetails: (state) => {
@@ -81,13 +109,25 @@ const store = createStore({
       return state.driverId;
     },
     getUserId: (state) => {
-      return state.driverId;
+      return state.userId;
     },
     getDriverActiveRideDetails: (state) => {
       return state.driverActiveRideDetails;
     },
     getUserRideInfo: (state) => {
       return state.userRideInfo;
+    },
+    getDriverMobileNumber: (state) => {
+      return state.driverMobileNumber;
+    },
+    getLoading: (state) => {
+      return state.isLoading;
+    },
+    getLoadingMessage: (state) => {
+      return state.loadingMessage;
+    },
+    getDriverInfo: (state) => {
+      return state.driverInfo;
     },
   }
 });

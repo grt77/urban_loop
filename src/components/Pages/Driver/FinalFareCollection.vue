@@ -14,7 +14,7 @@
 </template>
 
 <script>
-import { mapActions, mapGetters } from 'vuex/dist/vuex.cjs.js';
+import { mapActions, mapGetters } from 'vuex';
 import { images } from '../../../assets/images';
 
 export default {

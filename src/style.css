@@ -84,3 +84,18 @@ body >>> .slideunlock {
   --su-color-bg: red !important; /* Set the background color to light pink */
   --su-color-progress-complete-bg: #32cd32; /* Change progress bar color to lime green */
 }
+
+body >>> .VueHotToast__toast-container {
+  width: 263px;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  box-shadow: 0 0 4px 10px black;
+  margin-top: 30px !important;
+}
+
+body >>> .VueHotToast__toast-container .VueHotToast__toast {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6);
+  margin-top: 30px !important;
+  margin-left: -15px;
+}

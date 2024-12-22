@@ -54,21 +54,25 @@ const driverRoutes = [
     path: '/driver/info',
     name: 'DriverInfo',
     component: DriverInfo,
+    meta: { requiresAuth: true },
   },
   {
     path: '/driver/ride-decision',
     name: 'DriverRideDecision',
     component: RideDecision,
+    meta: { requiresAuth: true },
   },
   {
     path: '/driver/ride-confirmation',
     name: 'DriverRideConfirmation',
     component: RideConfirmation,
+    meta: { requiresAuth: true },
   },
   {
     path: '/driver/final-fare-collection',
     name: 'DriverFinalFareCollection',
     component: FinalFareCollection,
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -80,6 +84,31 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes,
+});
+
+function isValidAccessToken() {
+  const token = localStorage.getItem('accessToken');
+  return token !== null && token !== '';
+}
+
+
+router.beforeEach((to, from, next) => {
+  console.log('IS_CAME', to)
+  if (to.matched.some((record) => record.meta.requiresAuth) && to.path.startsWith('/driver')) {
+    if (!isValidAccessToken()) {
+      console.log('IS_VALID_ACCESS_TOKEN');
+      next({ name: 'DriverLogin' });
+    } else {
+      console.log(to, from);
+      next();
+    }
+  } else {
+    if (to.path.startsWith('/driver') && isValidAccessToken()) {
+      next({ name: 'DriverRideDecision' });
+    } else {
+      next();
+    }
+  }
 });
 
 export default router;
