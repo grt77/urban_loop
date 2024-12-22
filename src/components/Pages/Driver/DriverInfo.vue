@@ -32,7 +32,7 @@ export default {
       driverInfo: 'getDriverInfo',
     }),
     dataUrl() {
-      return `http://localhost:5173/?driver_id=${this.driverInfo?.driver_id}`;
+      return `http://65.0.176.192:5000/?driver_id=${this.driverInfo?.driver_id}`;
     }
   },
 }
