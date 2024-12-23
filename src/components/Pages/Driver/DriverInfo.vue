@@ -32,7 +32,7 @@ export default {
       driverInfo: 'getDriverInfo',
     }),
     dataUrl() {
-      return `http://65.0.176.192:5000/?driver_id=${this.driverInfo?.driver_id}`;
+      return `https://urban-loop-backend.onrender.com/?driver_id=${this.driverInfo?.driver_id}`;
     }
   },
 }
