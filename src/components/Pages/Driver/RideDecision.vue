@@ -41,7 +41,7 @@ import { mapActions, mapGetters } from 'vuex';
 import { images } from '../../../assets/images';
 import DriverService from '../../../services/driver.service';
 import { toast } from '@steveyuowo/vue-hot-toast';
-import { getItemFromLocalStorage, setItemInLocalStorage } from '../../../utils/helper';
+import { getItemFromLocalStorage } from '../../../utils/helper';
 
 const driverService = new DriverService();
 
@@ -51,7 +51,6 @@ export default {
     return {
       images,
       rideDetails: [],
-      isRideAceepted: false,
     };
   },
   computed: {
@@ -61,7 +60,7 @@ export default {
       driverMobileNumber: 'getDriverMobileNumber',
     }),
   },
-  mounted() {
+  created() {
     const driverMobileNumber = getItemFromLocalStorage('driver_mobile_number');
     if (driverMobileNumber) {
       this.setDriverMobileNumber(driverMobileNumber);
@@ -113,10 +112,6 @@ export default {
         if (activeRidesResponse?.data?.length) {
           this.rideDetails = [...activeRidesResponse?.data];
         }
-        console.log(this.isRideAceepted)
-        if (!this.isRideAceepted) {
-          this.getActiveRides();
-        }
       } catch (error) {
         toast.error('Failed to fetch your active rides. Please try again');
       }
@@ -125,8 +120,6 @@ export default {
       try {
         const rideResponse = await driverService.acceptRideById(rideDetails?.ride_id, this.driverInfo?.driver_id);
         if (rideResponse?.status === 200) {
-          // clearInterval(this.rideInterval);
-          this.isRideAceepted = true;
           this.setDriverActiveRideDetails(rideDetails);
           this.$router.push({ name: 'DriverRideConfirmation' });
         }

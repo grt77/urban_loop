@@ -93,13 +93,10 @@ function isValidAccessToken() {
 
 
 router.beforeEach((to, from, next) => {
-  console.log('IS_CAME', to)
   if (to.matched.some((record) => record.meta.requiresAuth) && to.path.startsWith('/driver')) {
     if (!isValidAccessToken()) {
-      console.log('IS_VALID_ACCESS_TOKEN');
       next({ name: 'DriverLogin' });
     } else {
-      console.log(to, from);
       next();
     }
   } else {

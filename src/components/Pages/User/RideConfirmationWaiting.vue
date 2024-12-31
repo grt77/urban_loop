@@ -10,8 +10,14 @@
         <span v-else-if="!isDriverAviable && isDriverVerfied">Driver is on other Ride</span>
         <span v-else-if="isDriverAviable && !isDriverVerfied">Driver is not verified</span>
         <span v-else-if="!isDriverAviable && !isDriverVerfied">Driver not found</span>
-        <span v-else-if="isDriverAccepted">Driver is Accepted. Waiting to start the ride</span>
-        <span v-else>Waiting for Driver's Confirmation</span>
+        <div v-else-if="isDriverAccepted">
+          <span>Driver is Accepted. Waiting to start the ride</span>
+          <font-awesome-icon icon="rotate-right" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="handleRefreshButton()" />
+        </div>
+        <div v-else>
+          <span>Waiting for Driver's Confirmation</span>
+          <font-awesome-icon icon="rotate-right" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="handleRefreshButton()" />
+        </div>
       </div>
     </div>
     <div class="col-xs-12 form-group">
@@ -41,6 +47,7 @@ export default {
       isDriverVerfied: false,
       isDriverAccepted: false,
       images,
+      isRefreshed: false,
     };
   },
   computed: {
@@ -107,6 +114,8 @@ export default {
     },
     async rideStatus() {
       try {
+        this.setIsLoading(true);
+        this.setLoadingMessage('Checking your ride status. Please wait...');
         const rideResponse = await userService.rideStatus(this.mobileNumber);
         if (rideResponse?.data.ride_status === 'started') {
           this.isDriverAccepted = false;
@@ -116,11 +125,19 @@ export default {
           if (rideResponse?.data.ride_status === 'accepted') {
             this.isDriverAccepted = true;
           }
-          this.rideStatus();
+          // this.rideStatus();
         }
       } catch (error) {
         toast.error('Failed to fetch ride details'); 
-      } 
+      } finally {
+        this.setIsLoading(false);
+        this.isRefreshed = false;
+        this.setLoadingMessage('');
+      }
+    },
+    handleRefreshButton() {
+      this.isRefreshed = true;
+      this.rideStatus();
     }
   }
 };
@@ -165,6 +182,18 @@ export default {
       font-weight: 600;
       margin-bottom: 20px;
       font-family: Arial, Helvetica, sans-serif;
+
+      .fa-rotate-right {
+        display: block;
+        width: 100%;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: transform 0.5s ease-in;
+      }
+
+      .rotate {
+        animation: rotate-animation 0.5s linear infinite;
+      }
     }
   }
 
@@ -185,6 +214,15 @@ export default {
   .urban-loop-logo {
     margin-top: 80px;
     width: 100%;
+  }
+}
+
+@keyframes rotate-animation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 </style>

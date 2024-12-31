@@ -225,7 +225,6 @@ export default {
       });
     },
     fetchCurrentLocation() {
-      console.log('CALLING FOR FETCH CURRENT LOCATION')
       return new Promise((resolve, reject) => {
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
