@@ -5,6 +5,8 @@ import flashRideLogo from './flash-ride-logo.png';
 import navigationImage from './navigation-image.png';
 import googleMapIcon from './google-map-icon.png';
 import qrImageIcon from './qr-image.png';
+import chevronRightIcon from './chevron-right.jpg';
+import chevronDoubleRightIcon from './chevron-double-right.svg';
 
 export const images = {
   autoRickShaw,
@@ -14,4 +16,6 @@ export const images = {
   navigationImage,
   googleMapIcon,
   qrImageIcon,
+  chevronRightIcon,
+  chevronDoubleRightIcon
 };

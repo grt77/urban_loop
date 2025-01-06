@@ -250,11 +250,17 @@ export default {
   position: relative;
   width: 100%;
   border-radius: 7px;
+
+}
+
+.mapboxgl-ctrl {
+    display: none !important;
 }
 
 v-deep #bookingConfirmed canvas {
   width: 100%;
 }
+
 
 .start-ride-button {
   position: absolute;

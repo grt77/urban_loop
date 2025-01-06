@@ -1,22 +1,27 @@
 <template>
   <div class="row main-container">
+    <div class="qr-container">
+      <h5>Tap to View QR</h5>
+      <img :src="images.chevronRightIcon" class="chevron-right-icon" alt="Checvron Right" />
+      <img :src="images.qrImageIcon" class="qr-icon" alt="QR Image" title="Tap to view QR" @click="$router.push({ name: 'DriverInfo' })" />
+    </div>
     <div class="col-xs-12 text-center">
-      <img :src="images.autoRickShaw" width="70px" alt="Auto Rickshaw" />
-      <img :src="images.qrImageIcon" class="qr-icon" alt="QR Image" @click="$router.push({ name: 'DriverInfo' })" />
-      <img :src="images.flashRideLogo" width="100%" class="mt-2" alt="Flash Ride Logo" />
+      <img :src="images.autoRickShaw" width="60px" alt="Auto Rickshaw" />
+      <h2>Your Flash Ride Requests</h2>
+      <!-- <img :src="images.flashRideLogo" width="100%" class="mt-2" alt="Flash Ride Logo" /> -->
       <div v-if="rideDetails?.length" class="rides-container">
         <div v-for="(ride) in rideDetails" :key="ride?.ride_id" class="card ride-card">
           <div class="card-body">
-            <p class="card-text mb-1">
-              <b>Destination - </b>
-              <span>{{ ride?.dest_address?.split(',')[0] }}</span>
-            </p>
-            <div class="row">
-              <div class="col-xs-6 col-sm-6 text-center">
-                <b>Other's Avg Price - </b>{{ (ride?.price - 20) }}
+            <div class="row p-0">
+              <div class="col-xs-5 col-sm-6"><b>Destination:</b></div>
+              <div class="col-xs-7 col-sm-6 ps-0 text-center">{{ ride?.dest_address?.split(',')[0] }}</div>
+            </div>
+            <div class="row p-0 mt-1">
+              <div class="col-xs-6 col-sm-6 pe-0 text-start">
+                <b>Estimated Fare: </b>
               </div>
-              <div class="col-xs-6 col-sm-6 text-center">
-                <b>Flash Ride Price -</b> {{ Number(ride?.price) }}
+              <div class="col-xs-6 col-sm-6 ps-0 text-center">
+                <span class="text-success fw-bold">₹&nbsp;{{ Number(ride?.price) }}.00</span>
               </div>
             </div>
             <div class="btn-container">
@@ -148,12 +153,33 @@ export default {
 .main-container {
   font-family: Arial, Helvetica, sans-serif;
 
-  .qr-icon {
-    position: absolute;
-    top: 4px;
-    right: 10px;
-    width: 40px;
-    cursor: pointer;
+  h2 {
+    font-family: "Bangers";
+    font-size: 35px;
+    margin-top: 5px;
+  }
+
+  .qr-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    h5 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 0px;
+    }
+
+    .chevron-right-icon {
+      width: 35px;
+    }
+
+    .qr-icon {
+      width: 40px;
+      cursor: pointer;
+      border: 2px solid green;
+      border-radius: 3px;
+    }
   }
 
   .rides-container {
@@ -187,11 +213,24 @@ export default {
         }
       }
     }
+
+    &::-webkit-scrollbar {
+      width: 0px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background-color: aliceblue;
+      border-radius: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: #f3f4f6;
+    }
   }
 
 
   .no-rides-container {
-    height: 45vh;
+    height: 35vh;
     display: flex;
     align-items: center;
     justify-content: center;

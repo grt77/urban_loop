@@ -29,12 +29,9 @@ export default {
 <style lang="scss">
 .iphone-container {
   width: 325px;
-  height: 93vh;
-  border-radius: 30px;
-  border: 10px solid #000;
+  height: 700px;
   background-color: #fff;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -45,8 +42,22 @@ export default {
   .screen {
     width: 100%;
     height: 100%;
-    background-color: white; /* Default screen background */
+    background-color: white;
     padding: 30px;
+  }
+}
+
+@media (min-width: 360px) and (max-width: 424px) {
+  .iphone-container {
+    width: 325px !important;
+    height: 670px !important;
+  }
+}
+
+@media (min-width: 425px) and (max-width: 932px) {
+  .iphone-container {
+    width: 420px !important;
+    height: 670px !important;
   }
 }
 </style>

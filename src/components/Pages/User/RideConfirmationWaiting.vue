@@ -10,13 +10,20 @@
         <span v-else-if="!isDriverAviable && isDriverVerfied">Driver is on other Ride</span>
         <span v-else-if="isDriverAviable && !isDriverVerfied">Driver is not verified</span>
         <span v-else-if="!isDriverAviable && !isDriverVerfied">Driver not found</span>
-        <div v-else-if="isDriverAccepted">
+        <div v-else-if="isDriverAccepted" class="driver-acceptance-message">
           <span>Driver is Accepted. Waiting to start the ride</span>
-          <font-awesome-icon icon="rotate-right" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="handleRefreshButton()" />
+          <button class="btn btn-primary mt-2 m-auto" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="handleRefreshButton()">
+            <font-awesome-icon icon="rotate-right" />
+            Refresh
+          </button>
         </div>
-        <div v-else>
+        <div v-else class="driver-acceptance-message">
           <span>Waiting for Driver's Confirmation</span>
-          <font-awesome-icon icon="rotate-right" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="handleRefreshButton()" />
+          <button class="btn btn-primary mt-2 m-auto" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="handleRefreshButton()">
+            <font-awesome-icon icon="rotate-right" />
+            Refresh
+          </button>
+          <!-- <font-awesome-icon icon="rotate-right" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="handleRefreshButton()" /> -->
         </div>
       </div>
     </div>
@@ -183,17 +190,21 @@ export default {
       margin-bottom: 20px;
       font-family: Arial, Helvetica, sans-serif;
 
-      .fa-rotate-right {
-        display: block;
-        width: 100%;
-        margin-top: 10px;
-        cursor: pointer;
-        transition: transform 0.5s ease-in;
+      .driver-acceptance-message {
+        display: flex;
+        flex-direction: column;
+
+
+        .fa-rotate-right {
+          cursor: pointer;
+          transition: transform 0.5s ease-in;
+        }
+
+        .rotate .fa-rotate-right {
+          animation: rotate-animation 0.5s linear infinite;
+        }
       }
 
-      .rotate {
-        animation: rotate-animation 0.5s linear infinite;
-      }
     }
   }
 

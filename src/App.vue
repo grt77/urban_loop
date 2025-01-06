@@ -21,9 +21,5 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 90vh;
-  background-color: #eaeaea;
-  border-radius: 30px;
-  padding: 5px;
 }
 </style>

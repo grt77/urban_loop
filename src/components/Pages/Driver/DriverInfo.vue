@@ -1,5 +1,8 @@
 <template>
-  <div class="d-flex align-items-end w-100" style="height: 60%;">
+  <div class="back-container">
+    <font-awesome-icon icon="chevron-circle-left" title="Go Back" @click="$router.go(-1)" />
+  </div>
+  <div class="d-flex align-items-end w-100" style="height: 50%;">
     <vue-qrcode
       style="width: 100%;"
       :value="dataUrl"
@@ -37,3 +40,14 @@ export default {
   },
 }
 </script>
+<style lang="scss" scoped>
+.back-container {
+  display: flex;
+  justify-content: left;
+
+  .fa-circle-chevron-left {
+    font-size: 35px;
+    cursor: pointer;
+  }
+}
+</style>

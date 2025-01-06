@@ -3,9 +3,6 @@
     <div class="col-xs-12 logo-container">
       <img :src="images.logo" alt="Urban Loop Logo" class="urban-loop-logo" />
     </div>
-    <div class="col-xs-12 logo-container">
-      <img :src="images.flashRideLogo" alt="Flash Ride Logo" class="flash-ride-logo" />
-    </div>
     <div class="col-xs-12 booking-map-container">
       <booking-map
         v-if="initializeMap"
@@ -14,39 +11,28 @@
         :is-ride-started="isRideStarted"
         height="297px"
       />
-      <img :src="images.googleMapIcon" class="google-map-icon" alt="google-map-icon" width="50px" @click="navigateToGoogleMap" />
+      <div class="google-map-icon">
+        <h2>Tap here for directions</h2>
+        <img :src="images.chevronDoubleRightIcon" alt="google-map-icon" width="40px" @click="navigateToGoogleMap" />
+        <img :src="images.googleMapIcon" class="google-map-image" title="Tap here for directions" alt="google-map-icon" width="50px" @click="navigateToGoogleMap" />
+      </div>
     </div>
-    <!-- <div class="col-xs-12 d-flex justify-content-end">
-    </div> -->
     <div class="col-xs-12 travel-info">
-      <div><b>Estimated Travel Time: </b>{{ estimatedMinutes }} Mins</div>
+      <div><b>Estimated Travel Time: </b><span class="text-success">{{ Math.round(estimatedMinutes) }} Mins</span></div>
     </div>
-    <div class="col-xs-12">
-      <slide-unlock
-        v-if="!isRideStarted"
-        ref="rideStartedSlider"
-        :auto-width="true"
-        :circle="false"
-        :width="400"
-        :height="50"
-        text="Slide to Start Ride"
-        success-text="Ride Started"
-        @completed="onRideStarted"
-      />
-      <slide-unlock
-        v-else
-        ref="rideEndedSlider"
-        :auto-width="true"
-        :circle="false"
-        :width="400"
-        :height="50"
-        text="Slide to End Ride"
-        success-text="Ride Ended"
-        @completed="onRideEnded"
-      />
+    <div class="col-xs-12 mt-2">
+      <button v-if="!isRideStarted" class="start-ride" @click="onRideStarted()">
+        Click here to Start Ride
+      </button>
+      <button v-else class="end-ride" @click="onRideEnded()">
+        Click here to End Ride
+      </button>
     </div>
-    <div class="col-xs-12 mt-3 heading-info">
-      <span class="fw-bold">Heading Towards:&nbsp;&nbsp;</span> {{ currentRideDetails?.dest_address?.split(', ')[0]}}
+    <div class="col-xs-12 mt-3 p-0 heading-info">
+      <div class="row p-0 text-start d-flex align-items-start" style="font-size: 14px;">
+        <div class="col-xs-5 col-sm-5 p-0 fw-bold text-center">Heading Towards:</div>
+        <div class="col-xs-7 col-sm-7">{{ currentRideDetails?.dest_address}}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -176,7 +162,7 @@ export default {
     margin-left: -10px;
 
     .urban-loop-logo {
-      width: 50%;
+      width: 100%;
     }
 
     .flash-ride-logo {
@@ -193,21 +179,52 @@ export default {
     border-radius: 5px;
 
     .google-map-icon {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
       position: absolute;
       bottom: 0;
       right: 0;
-      cursor: pointer;
+
+      h2 {
+        font-size: 16px;
+        margin-bottom: 3px;
+      }
+
+      .google-map-image {
+        cursor: pointer;
+        border: 2px solid green;
+        border-radius: 5px;
+        width: 60px;
+      }
     }
+  }
+
+  .start-ride {
+    width: 100%;
+    border: 2px solid rgb(85, 189, 220);
+    border-radius: 40px;
+    background: rgb(85, 189, 220);
+    opacity: 0.84;
+  }
+
+  .end-ride {
+    width: 100%;
+    border: 2px solid #EEA840;
+    border-radius: 40px;
+    background: #EEA840;
+    opacity: 0.9;
   }
 
   .travel-info {
     display: flex;
     justify-content: center;
     margin-top: 10px;
+    padding: 0;
 
     div {
       width: 80%;
-      font-size: 17px;
+      font-size: 14px;
       font-family: Arial, Helvetica, sans-serif;
       text-align: center;
     }

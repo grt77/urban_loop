@@ -1,6 +1,5 @@
 <template>
-  <!-- <Loader v-if="isLoading" :label="loadingMessage" /> -->
-  <div v-if="isLoading || isDriverValid" class="row location-selector-container">
+  <div v-if="!isLoading && isDriverValid" class="row location-selector-container">
     <header class="col-xs-12 header-container">
       <img class="rickshaw" :src="images.autoRickShaw" alt="Rickshaw" width="70px" />
       <img class="urban-loop-logo" :src="images.logo" alt="Urban Loop Logo" width="80%" />
@@ -74,7 +73,9 @@
     <section class="col-xs-12 form-group text-start fw-bold mt-1">
       <label for="mobileNumber">Mobile Number:</label>
       <div class="input-group">
+        <label class="input-group-text" for="mobileNumber">+91</label>
         <input
+          id="mobileNumber"
           v-model="mobileNumber"
           class="form-control ps-3"
           type="number"
@@ -91,7 +92,7 @@
       <button class="confirm-button" :class="(!source || !destination || !mobileNumber || mobileNumberError) ? 'disabled' : ''" @click="handleOTPAndFairService">Confirm</button>
     </section>
   </div>
-  <div v-else class="driver-not-found">
+  <div v-if="!isLoading && !isDriverValid" class="driver-not-found">
     <h3>Driver not found!</h3>
   </div>
 </template>
@@ -139,6 +140,11 @@ export default {
       isDestinationLoading: false,
       isDriverValid: false,
     };
+  },
+  computed: {
+    ...mapGetters({
+      isLoading: 'getLoading',
+    }),
   },
   mounted() {
     this.isValidDriver(this.$route?.query?.driver_id);
@@ -369,17 +375,6 @@ export default {
       }
     }
 
-    .input-group-text {
-      height: 2.6rem;
-      padding: 0px 8px;
-      border: 3px solid;
-      margin-top: 0.29rem;
-      border-right: 0;
-      padding-bottom: 1px;
-      border-top-left-radius: 5px;
-      border-bottom-left-radius: 5px;
-    }
-
     .indian-code {
       position: absolute;
     }
@@ -397,7 +392,7 @@ export default {
       border-bottom-right-radius: 0px;
     }
 
-    input.form-control {
+    input.form-control[type="text"] {
       border-radius: 5px;
       border: 2.5px solid rgba(0, 0, 0, 0.8);
       padding-left: 30px;
@@ -412,9 +407,33 @@ export default {
       }
     }
 
+    .input-group-text {
+      padding: 10px;
+      font-size: 14px;
+      height: 41px;
+      margin-top: 5px;
+      border-radius: 0;
+      border: 2.5px solid rgba(0, 0, 0, 0.8);
+      border-right: 0px;
+      font-weight: 500;
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+
     input[type="number"] {
       -moz-appearance: textfield;
       appearance: textfield;
+      border: 2.5px solid rgba(0, 0, 0, 0.8);
+      padding-left: 10px !important;
+      margin: 5px 0;
+
+      &::placeholder {
+        color: rgba(0, 0, 0, 0.8);
+      }
+
+      &:focus {
+        box-shadow: none;
+      }
 
       &::-webkit-inner-spin-button, ::-webkit-outer-spin-button {
         -webkit-appearance: none;

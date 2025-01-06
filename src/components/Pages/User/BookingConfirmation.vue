@@ -8,30 +8,39 @@
       v-if="initializeMap"
       :source-details="sourceCoordinates"
       :destination-details="destinationCoordinates" />
-      <img :src="images.googleMapIcon" alt="google-map-icon" class="google-map-icon" width="60px" @click="navigateToGoogleMap" />
+      <div class="google-map-icon">
+        <h2>Tap here for directions</h2>
+        <img :src="images.chevronDoubleRightIcon" alt="google-map-icon" width="40px" @click="navigateToGoogleMap" />
+        <img :src="images.googleMapIcon" class="google-map-image" title="Tap here for directions" alt="google-map-icon" width="50px" @click="navigateToGoogleMap" />
+      </div>
+      <!-- <img :src="images.googleMapIcon" alt="google-map-icon" class="google-map-icon" width="60px" @click="navigateToGoogleMap" /> -->
     </div>
     <div class="col-xs-12 estimates-travel">
-      <div>Estimates Travel time {{ fairDetails?.duration_minutes }} Mins</div>
+      <div>Estimates Travel time <span class="text-success">{{ fairDetails?.duration_minutes }} Mins</span></div>
     </div>
     <div class="col-xs-12 mt-4 driver-info">
-      <div class="row">
-        <div class="col-xs-6 col-sm-6 d-flex align-items-center p-0">
+      <div class="row p-0">
+        <div class="col-xs-6 col-sm-6 d-flex align-items-center p-0 auto-model-details">
           <font-awesome-icon icon="circle-user" class="user-icon" />
-          <div class="driver-details">
-            <label for="driver-name"><span>{{ userRideInfo?.mobile_no }}</span></label>
-            <span>{{ userRideInfo?.velc_no }}</span>
+          <div class="ms-2">
+            <span class="d-block fw-bold">Driver Name</span>
+            <span class="d-block">{{ userRideInfo?.driver_name || 'Rajesh Singh' }}</span>
           </div>
         </div>
         <div class="col-xs-6 col-sm-6 auto-model-details p-0">
           <img :src="images.autoRickShaw" alt="autorickshaw" class="rickshaw" />
           <div>
-            <span class="fw-bold">Auto Model</span> - Mahindra
+            <span class="d-block fw-bold">Vehicle No</span>
+            <span class="d-block">{{ userRideInfo?.velc_no }}</span>
           </div>
         </div>
       </div>
     </div>
-    <div class="col-xs-12 mt-4 heading-towards">
-      <span class="fw-bold">Heading Towards:&nbsp;&nbsp;</span> {{ userRideInfo?.dest_address?.split(',')[0] }}
+    <div class="col-xs-12 mt-1 p-0 heading-info">
+      <div class="row p-0 text-start d-flex align-items-start" style="font-size: 14px;">
+        <div class="col-xs-5 col-sm-5 p-0 fw-bold text-center">Heading Towards:</div>
+        <div class="col-xs-7 col-sm-7" style="font-size: 13px;">{{ userRideInfo?.dest_address}}</div>
+      </div>
     </div>
   </div>
 </template>
@@ -104,7 +113,7 @@ export default {
 
 <style lang="scss">
 .booking-confirmed-container {
-  margin-top: 50px;
+  margin-top: 30px;
   font-family: Arial, Helvetica, sans-serif;
 
   .header-container {
@@ -133,10 +142,24 @@ export default {
     padding: 0 !important;
 
     .google-map-icon {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
       position: absolute;
       bottom: 0;
       right: 0;
-      cursor: pointer;
+
+      h2 {
+        font-size: 16px;
+        margin-bottom: 3px;
+      }
+
+      .google-map-image {
+        cursor: pointer;
+        border: 2px solid green;
+        border-radius: 5px;
+        width: 60px;
+      }
     }
   }
 
@@ -177,14 +200,15 @@ export default {
 
     .auto-model-details {
       display: flex;
-      flex-direction: column;
-      justify-content: center;
+      flex-direction: row;
+      align-items: center;
       text-align: center;
       font-size: 12px;
       margin-bottom: 15px;
 
       .rickshaw {
         width: 50px;
+        height: 30px;
         margin: 0 auto;
       }
 
@@ -194,13 +218,12 @@ export default {
     }
   }
 
-  .heading-towards {
+  .heading-info {
+    display: flex;
+    justify-content: flex-start;
     font-size: 14px;
+    margin-left: 15px;
     margin-top: 20px;
-
-    span {
-      font-weight: bold;
-    }
   }
 }
 </style>

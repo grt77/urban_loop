@@ -5,23 +5,29 @@
     </div>
     <div class="col-xs-12 header-container">
       <img :src="images.autoRickShaw" alt="autoRickshaw" class="rickshaw" />
-      <h2>FLASH RIDE</h2>
+      <div>
+        <h2>You on</h2>
+        <h2><span>Flash Ride</span></h2>
+      </div>
     </div>
     <div class="col-xs-12 fare-content-container">
       <div class="estimated-fare">Estimated Fare</div>
-      <span style="font-size: 10px;">Duration: {{ fairDetails?.duration_minutes }} min</span>
-      <span style="font-size: 10px;">Distance: {{ fairDetails?.distance_km }} km</span>
-      <h3>{{  fairAmount }} /-</h3>
+      <div class="units">
+        <span class="fare-unit"><b>Duration:</b> <span class="text-success">{{ Math.round(fairDetails?.duration_minutes) }} mins</span></span>
+        <span class="fare-unit"><b>Distance:</b> <span>{{ fairDetails?.distance_km }} kms</span></span>
+      </div>
+      <h3><span class="me-1">₹</span>{{  Math.ceil(fairAmount) }}.00</h3>
       <div class="resend-button">Resend OTP</div>
     </div>
     <div class="col-xs-12 form-group">
       <input
         v-model="otp"
         class="form-control"
-        type="number"
+        :type="showOTP ? 'text' : 'password'"
         placeholder="Enter OTP"
         @input="debouncedCheckOTP"
       />
+      <font-awesome-icon :icon="showOTP ? 'eye' : 'eye-slash'" class="eye-icon" @click="showOTP = !showOTP" />
       <div v-if="otpError" class="otp-error-message">
         {{ otpError }}
       </div>
@@ -55,6 +61,7 @@ export default {
       otp: "",
       otpError: "",
       images,
+      showOTP: false,
       debouncedCheckOTP: debounce(this.validateOtp, 500),
     };
   },
@@ -85,7 +92,7 @@ export default {
       try {
         this.setIsLoading(true);
         this.setLoadingMessage('Validating your OTP, please wait...');
-        const otpResult = await otpService.verifyOtp(this.mobileNumber, this.otp);
+        const otpResult = await otpService.verifyOtp(this.mobileNumber, Number(this.otp));
         if (otpResult) {
           localStorage.setItem('accessToken', otpResult?.data?.auth || otpResult?.data?.Auth);
           this.getUserDetails();
@@ -114,13 +121,15 @@ export default {
 
 <style lang="scss">
 .fare-container {
+  position: relative;
   .back-container {
     display: flex;
     justify-content: left;
-    margin-bottom: 20px;
+    margin-left: 12px;
+    cursor: pointer;
 
     .fa-circle-chevron-left {
-      font-size: 35px;
+      font-size: 30px;
       cursor: pointer;
     }
   }
@@ -133,30 +142,57 @@ export default {
 
   .header-container {
     display: flex;
-    align-items: center;
+    align-items: end;
+    margin-top: -15px;
 
     .rickshaw {
       width: 70px;
       margin-right: 20px;
+      margin-bottom: 5px;
     }
 
     h2 {
       font-family: "Bangers";
-      font-size: 40px;
+      font-size: 25px;
       margin-bottom: 0;
+
+      span {
+        font-size: 40px;
+      }
     }
   }
 
   .fare-content-container {
     display: flex;
     flex-direction: column;
-    text-align: start;
-    margin-top: 80px;
+    text-align: center;
+    margin-top: 60px;
+    padding: 0;
+    width: 110%;
 
     .estimated-fare {
-      font-size: 17px;
+      font-size: 20px;
       font-weight: 600;
       font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .units {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: row;
+
+      .fare-unit {
+        display: block;
+        width: 50%;
+        margin-right: 3px;
+        font-size: 15px;
+
+        span {
+          color: green;
+          font-size: 12px;
+          font-weight: bold;
+        }
+      }
     }
 
     h3 {
@@ -170,9 +206,11 @@ export default {
     .resend-button {
       text-align: end;
       font-size: 14px;
-      margin: 10px 0;
+      margin: 35px 0 5px;
+      margin-right: 17px;
       cursor: pointer;
       font-weight: 500;
+      color: #0b27c7;
 
       &:hover {
         text-decoration: underline;
@@ -181,10 +219,22 @@ export default {
   }
 
   .form-group {
-    .form-control[type="number"] {
+    position: relative;
+
+    .eye-icon {
+      position: absolute;
+      right: 25px;
+      top: 17px;
+      cursor: pointer;
+      color: grey;
+      z-index: 99;
+    }
+
+    .form-control {
       border-radius: 5px;
       margin: 5px 0;
       border: 2.5px solid rgba(0, 0, 0, 0.8);
+      letter-spacing: 2px;
 
       &::placeholder {
         color: rgba(0, 0, 0, 0.8);

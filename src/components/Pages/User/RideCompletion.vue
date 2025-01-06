@@ -3,17 +3,13 @@
     <div class="col-xs-12 header-container">
       <img :src="images.autoRickShaw" alt="Auto Rickshaw" class="auto-image" />
     </div>
-    <div class="col-xs-12 bot-container">
-      <img :src="images.flyingBot" alt="Flying Bot" class="flying-bot" />
-    </div>
-    <div class="col-xs-12 ride-completion-content">
-      <span>Please pay the total amount to the driver</span>
-      <h2>₹{{ fairDetails?.fare_amount }} /-</h2>
-      <button class="btn btn-primary mt-2 px-3" @click="$router.push('/')">Back to home</button>
-    </div>
     <div class="col-xs-12 footer">
       <div class="thanks-message">Thanks for choosing</div>
       <img :src="images.logo" alt="Urban Loop Logo" class="urban-loop-logo" />
+    </div>
+    <div class="col-xs-12 ride-completion-content">
+      <span>Please pay the total amount to the driver</span>
+      <h2>₹&nbsp;{{ fairDetails?.fare_amount }}.00</h2>
     </div>
   </div>
 </template>
@@ -43,17 +39,16 @@ export default {
   flex-direction: column;
   align-items: center;
   padding: 20px;
+  margin-top: 50px;
   font-family: Arial, Helvetica, sans-serif;
 
   .header-container {
     display: flex;
-    justify-content: flex-end;
+    justify-content: center;
     width: 100%;
 
     .auto-image {
-      margin-right: -40px;
-      margin-top: -30px;
-      width: 70px;
+      width: 120px;
     }
   }
 
