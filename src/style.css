@@ -99,3 +99,7 @@ body >>> .VueHotToast__toast-container .VueHotToast__toast {
   margin-top: 30px !important;
   margin-left: -15px;
 }
+
+#bookingConfirmed >>> .mapboxgl-ctrl-attrib{
+  display: none !important;
+}

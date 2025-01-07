@@ -1,20 +1,34 @@
 import { createStore } from 'vuex';
-import { SET_DESTINATION_DETAILS, SET_DRIVER_ACTIVE_DETAILS, SET_DRIVER_ID, SET_DRIVER_INFO, SET_DRIVER_MOBILE_NUMBER, SET_FAIR_DETAILS, SET_IS_LOADING, SET_LOADING_MESSAGE, SET_MOBILE_NUMBER, SET_SOURCE_DETAILS, SET_USER_ID, SET_USER_RIDE_INFO } from './mutation-types';
+import {
+  SET_DESTINATION_DETAILS,
+  SET_DRIVER_ACTIVE_DETAILS,
+  SET_DRIVER_ID, SET_DRIVER_INFO,
+  SET_DRIVER_MOBILE_NUMBER,
+  SET_FAIR_DETAILS,
+  SET_IS_LOADING,
+  SET_LOADING_MESSAGE,
+  SET_MOBILE_NUMBER,
+  SET_SOURCE_DETAILS,
+  SET_USER_ID,
+  SET_USER_RIDE_INFO
+} from './mutation-types';
+
+const persistedState = JSON.parse(localStorage.getItem('vuexState')) || {};
 
 const store = createStore({
   state: {
-    fairDetails: {},
-    currentMobileNumber: 0,
-    driverId: '',
-    userId: null,
-    sourceDetails: {},
-    destinationDetails: {},
-    driverActiveRideDetails: {},
-    userRideInfo: {},
-    driverMobileNumber: null,
-    isLoading: false,
-    loadingMessage: '',
-    driverInfo: null,
+    fairDetails: persistedState.fairDetails || {},
+    currentMobileNumber: persistedState.currentMobileNumber || 0,
+    driverId: persistedState.driverId || '',
+    userId: persistedState.userId || null,
+    sourceDetails: persistedState.sourceDetails || {},
+    destinationDetails: persistedState.destinationDetails || {},
+    driverActiveRideDetails: persistedState.driverActiveRideDetails || {},
+    userRideInfo: persistedState.userRideInfo || {},
+    driverMobileNumber: persistedState.driverMobileNumber || null,
+    isLoading: persistedState.isLoading || false,
+    loadingMessage: persistedState.loadingMessage || '',
+    driverInfo: persistedState.driverInfo || null,
   },
   mutations: {
     [SET_FAIR_DETAILS](state, payload) {
@@ -130,6 +144,10 @@ const store = createStore({
       return state.driverInfo;
     },
   }
+});
+
+store.subscribe((mutation, state) => {
+  localStorage.setItem('vuexState', JSON.stringify(state));
 });
 
 export default store;

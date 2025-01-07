@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isLoading && isDriverValid" class="row location-selector-container">
+  <div v-if="(!isLoading && isDriverValid) || initialLoadCompleted" class="row location-selector-container">
     <header class="col-xs-12 header-container">
       <img class="rickshaw" :src="images.autoRickShaw" alt="Rickshaw" width="70px" />
       <img class="urban-loop-logo" :src="images.logo" alt="Urban Loop Logo" width="80%" />
@@ -139,6 +139,7 @@ export default {
       isSourceLoading: false,
       isDestinationLoading: false,
       isDriverValid: false,
+      initialLoadCompleted: false,
     };
   },
   computed: {
@@ -161,6 +162,7 @@ export default {
     ]),
     async isValidDriver(driverId) {
       try {
+        this.initialLoadCompleted = false;
         this.setIsLoading(true);
         this.setLoadingMessage('Please wait while we verify the driver...');
         // this.loadingMessage = ;
@@ -172,6 +174,7 @@ export default {
       } finally {
         this.setIsLoading(false);
         this.setLoadingMessage();
+        this.initialLoadCompleted = true;
       }
     },
     async searchSourceLocation() {

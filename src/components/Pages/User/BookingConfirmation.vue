@@ -15,8 +15,8 @@
       </div>
       <!-- <img :src="images.googleMapIcon" alt="google-map-icon" class="google-map-icon" width="60px" @click="navigateToGoogleMap" /> -->
     </div>
-    <div class="col-xs-12 estimates-travel">
-      <div>Estimates Travel time <span class="text-success">{{ fairDetails?.duration_minutes }} Mins</span></div>
+    <div class="col-xs-12 estimates-travel text-center">
+      <div>Estimates Travel time <span class="text-success">{{ Math.round(fairDetails?.duration_minutes) }} Mins</span></div>
     </div>
     <div class="col-xs-12 mt-4 driver-info">
       <div class="row p-0">
@@ -150,8 +150,10 @@ export default {
       right: 0;
 
       h2 {
-        font-size: 16px;
-        margin-bottom: 3px;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 0px;
+        font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif ;
       }
 
       .google-map-image {

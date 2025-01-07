@@ -1,6 +1,6 @@
 <template>
   <div class="row driver-confirmation-waiting-container">
-    <div class="col-xs-12 header-container">
+    <div class="col-xs-12 header-container text-center">
       <img :src="images.autoRickShaw" alt="autoRickshaw" class="rickshaw" />
       <h2>Getting Your <span>FLASH RIDE</span></h2>
     </div>

@@ -245,7 +245,7 @@ export default {
 };
 </script>
 
-<style scoped>
+<style lang="scss">
 #bookingConfirmed {
   position: relative;
   width: 100%;
@@ -253,12 +253,20 @@ export default {
 
 }
 
-.mapboxgl-ctrl {
-    display: none !important;
+v-deep #bookingConfirmed .mapboxgl-ctrl {
+  display: none !important;
 }
 
-v-deep #bookingConfirmed canvas {
-  width: 100%;
+.map-container {
+  color:red;
+
+  .mapboxgl-control-container {
+
+    .mapboxgl-ctrl-logo {
+      display: none !important;
+    }
+    
+  }
 }
 
 
