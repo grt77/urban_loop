@@ -162,7 +162,7 @@ export default {
     ]),
     async isValidDriver(driverId) {
       try {
-        this.initialLoadCompleted = false;
+        this.initialLoadCompleted = true;
         this.setIsLoading(true);
         this.setLoadingMessage('Please wait while we verify the driver...');
         // this.loadingMessage = ;
@@ -174,7 +174,7 @@ export default {
       } finally {
         this.setIsLoading(false);
         this.setLoadingMessage();
-        this.initialLoadCompleted = true;
+        this.initialLoadCompleted = false;
       }
     },
     async searchSourceLocation() {
@@ -303,6 +303,8 @@ export default {
   
           // Handle OTP response
           if (otpResponse && autoFairResponse) {
+            this.setIsLoading(false);
+            this.setLoadingMessage('');
             this.setFairDetails({ ...autoFairResponse.data });
             this.setSourceDetails({
               latitude: this.sourceCordinates[1],
@@ -319,10 +321,9 @@ export default {
           }
   
         } catch (error) {
-          toast.error('Unable to fetch details or send OTP. Please try again.');
-        } finally {
           this.setIsLoading(false);
           this.setLoadingMessage('');
+          toast.error('Unable to fetch details or send OTP. Please try again.');
         }
       }
     }

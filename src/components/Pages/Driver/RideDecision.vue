@@ -190,7 +190,7 @@ export default {
     font-size: 13px;
 
     .ride-card {
-      width: 15rem;
+      width: 100%;
       padding: 0;
       text-align: start;
       margin-bottom: 10px;

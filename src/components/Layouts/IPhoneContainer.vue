@@ -28,8 +28,8 @@ export default {
   
 <style lang="scss">
 .iphone-container {
-  width: 325px;
-  height: 700px;
+  width: 100%;
+  height: 100vh;
   background-color: #fff;
   overflow: hidden;
   display: flex;
@@ -47,17 +47,17 @@ export default {
   }
 }
 
-@media (min-width: 360px) and (max-width: 424px) {
-  .iphone-container {
-    width: 325px !important;
-    height: 670px !important;
-  }
-}
+// @media (min-width: 360px) and (max-width: 424px) {
+//   .iphone-container {
+//     width: 325px !important;
+//     height: 670px !important;
+//   }
+// }
 
-@media (min-width: 425px) and (max-width: 932px) {
-  .iphone-container {
-    width: 420px !important;
-    height: 670px !important;
-  }
-}
+// @media (min-width: 425px) and (max-width: 932px) {
+//   .iphone-container {
+//     width: 420px !important;
+//     height: 670px !important;
+//   }
+// }
 </style>
