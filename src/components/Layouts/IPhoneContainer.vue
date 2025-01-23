@@ -4,9 +4,6 @@
       <toaster style="width: 100%;" />
       <Loader v-if="isLoading" :label="loadingMessage" />
       <slot></slot>
-      <footer class="beta-footer">
-        Beta version- Feedback Appreciated.
-      </footer>
     </div>
   </div>
 </template>
