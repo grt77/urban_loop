@@ -4,6 +4,9 @@
       <toaster style="width: 100%;" />
       <Loader v-if="isLoading" :label="loadingMessage" />
       <slot></slot>
+      <footer class="beta-footer">
+        Beta version- Feedback Appreciated.
+      </footer>
     </div>
   </div>
 </template>
@@ -28,9 +31,12 @@ export default {
   
 <style lang="scss">
 .iphone-container {
-  width: 100%;
-  height: 100vh;
+  width: 325px;
+  height: 96vh;
+  // border-radius: 30px;
+  // border: 10px solid #000;
   background-color: #fff;
+  // box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -47,17 +53,27 @@ export default {
   }
 }
 
-// @media (min-width: 360px) and (max-width: 424px) {
-//   .iphone-container {
-//     width: 325px !important;
-//     height: 670px !important;
-//   }
-// }
+@media (min-width: 360px) and (max-width: 424px) {
+  .iphone-container {
+    width: 325px !important;
+    height: 670px !important;
+  }
+}
 
-// @media (min-width: 425px) and (max-width: 932px) {
-//   .iphone-container {
-//     width: 420px !important;
-//     height: 670px !important;
-//   }
-// }
+@media (min-width: 425px) and (max-width: 932px) {
+  .iphone-container {
+    width: 420px !important;
+    height: 670px !important;
+  }
+}
+
+.beta-footer {
+  width: 290px;
+  position: fixed; /* Stick to the bottom */
+  bottom: 20px;
+  text-align: center;
+  color: #333;
+  font-size: 14px;
+}
+
 </style>

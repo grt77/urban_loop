@@ -123,12 +123,16 @@ export default {
     },
     async acceptRide(rideDetails) {
       try {
+        this.setIsLoading(true);
+        this.setLoadingMessage('Processing your ride acceptance...')
         const rideResponse = await driverService.acceptRideById(rideDetails?.ride_id, this.driverInfo?.driver_id);
         if (rideResponse?.status === 200) {
           this.setDriverActiveRideDetails(rideDetails);
           this.$router.push({ name: 'DriverRideConfirmation' });
         }
       } catch (error) {
+        this.setIsLoading(false);
+        this.setLoadingMessage('');
         toast.error('Failed to accept the ride. Please try again');
       }
     },

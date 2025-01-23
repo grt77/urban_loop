@@ -1,5 +1,5 @@
 <template>
-  <div v-if="(!isLoading && isDriverValid) || initialLoadCompleted" class="row location-selector-container">
+  <div v-if="(isDriverValid) || initialLoadCompleted" class="row location-selector-container">
     <header class="col-xs-12 header-container">
       <img class="rickshaw" :src="images.autoRickShaw" alt="Rickshaw" width="70px" />
       <img class="urban-loop-logo" :src="images.logo" alt="Urban Loop Logo" width="80%" />
