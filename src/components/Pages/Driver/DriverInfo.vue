@@ -35,7 +35,7 @@ export default {
       driverInfo: 'getDriverInfo',
     }),
     dataUrl() {
-      return `https://urban-loop-backend.onrender.com/?driver_id=${this.driverInfo?.driver_id}`;
+      return `https://master.d2dhzff8je0o5i.amplifyapp.com/?driver_id=${this.driverInfo?.driver_id}`;
     }
   },
 }
