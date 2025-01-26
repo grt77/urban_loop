@@ -11,6 +11,12 @@
       <span>Please pay the total amount to the driver</span>
       <h2>₹&nbsp;{{ fairDetails?.fare_amount }}.00</h2>
     </div>
+    <div class="col-xs-12 driver-info-container">
+      <h6>Driver Info</h6>
+      <div><span>Name:</span> Rajesh Singh</div>
+      <div><span>Phone No:</span> +917986209818</div>
+      <div><span>Vehicle No:</span> K26A1234</div>
+    </div>
   </div>
 </template>
 
@@ -92,6 +98,18 @@ export default {
 
     .urban-loop-logo {
       width: 100%;
+    }
+  }
+
+  .driver-info-container {
+    border: 1px solid;
+    border-radius: 5px;
+    padding: 10px;
+    width: 75%;
+    font-size: 11px;
+
+    h6 {
+      font-weight: bold;
     }
   }
 }

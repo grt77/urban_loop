@@ -17,7 +17,7 @@
         <span class="fare-unit"><b>Distance:</b> <span>{{ fairDetails?.distance_km }} kms</span></span>
       </div>
       <h3><span class="me-1">₹</span>{{  Math.ceil(fairAmount) }}.00</h3>
-      <div class="resend-button">Resend OTP</div>
+      <div class="resend-button" @click="resendOtp()">Resend OTP</div>
     </div>
     <div class="col-xs-12 form-group">
       <input
@@ -105,6 +105,16 @@ export default {
         this.setLoadingMessage('');
       }
     },
+    async resendOtp() {
+      try {
+        const otpResponse = await otpService.sendOtp(this.mobileNumber);
+        if (otpResponse) {
+          toast.success(`OTP Resend on ${this.mobileNumber}`);
+        }
+      } catch (error) {
+        toast.error('Failed to resend otp');
+      }
+    },
     async getUserDetails() {
       try {
         const userDetails = await driverService.getDriverDetails(this.mobileNumber);
@@ -119,7 +129,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .fare-container {
   position: relative;
   .back-container {
