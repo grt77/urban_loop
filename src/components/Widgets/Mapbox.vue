@@ -24,7 +24,7 @@ export default {
       map: null,
       directionsServiceUrl: 'https://api.mapbox.com/directions/v5/mapbox/driving',
       mapInitialized: false,
-      centerCordinates: [78.3384576, 17.383424],
+      centerCordinates: [77.594566, 12.971599],
       routeGeojson: null,
       sourceMarker: null,
       destinationMarker: null,

@@ -1,7 +1,7 @@
 <template>
   <div class="iphone-container">
     <div class="screen">
-      <toaster style="width: 100%;" />
+      <toaster style="width: 100%;font-size: 10px;" />
       <Loader v-if="isLoading" :label="loadingMessage" />
       <slot></slot>
     </div>
@@ -71,6 +71,15 @@ export default {
   text-align: center;
   color: #333;
   font-size: 14px;
+}
+
+v-deep.VueHotToast__toast-container {
+  font-size: 10px;
+  font-weight: bold;
+
+  .VueHotToast__toast {
+    padding: 5px 8px;
+  }
 }
 
 </style>

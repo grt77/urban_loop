@@ -24,9 +24,25 @@
       <button v-if="!isRideStarted" class="start-ride" @click="onRideStarted()">
         Click here to Start Ride
       </button>
-      <button v-else class="end-ride" @click="onRideEnded()">
+      <button v-else class="end-ride" @click="showModal = !showModal">
         Click here to End Ride
       </button>
+      <div class="modal-container" :class="showModal ? 'show' : ''" @click="showModal = !showModal">
+        <div class="modal-content" @click.stop="() => {}">
+          <div class="modal-header">
+            <span>Confirmation</span>
+            <span class="cross-button" @click="showModal = !showModal">x</span>
+          </div>
+          <hr>
+          <div class="modal-body">
+            <h5>Are you sure to end ride?</h5>
+          </div>
+          <div class="modal-footer">
+            <button class="success-button" @click="onRideEnded()">Yes</button>
+            <button class="failure-button" @click="showModal = !showModal">No</button>
+          </div>
+        </div>
+      </div>
     </div>
     <div class="col-xs-12 mt-3 p-0 heading-info">
       <div class="row p-0 text-start d-flex align-items-start" style="font-size: 14px;">
@@ -65,6 +81,7 @@ export default {
       isRideStarted: false,
       initializeMap: false,
       estimatedMinutes: null,
+      showModal: false,
     };
   },
   computed: {
@@ -262,5 +279,82 @@ export default {
     background-color: red;
     --su-color-bg: red;
   }
+}
+
+.modal-container {
+  position: absolute;
+  opacity: 0;
+  transition: opacity 0.5s, max-height 0.5s ease;
+  width: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  height: 93vh;
+  left: 0%;
+  max-height: 1000px;
+  display: none;
+  top: 0%;
+
+  .modal-content {
+    background-color: white;
+    margin: 10px;
+    width: 265px;
+    margin-top: 35vh;
+    margin-left: 30px;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    font-weight: bold;
+    padding: 10px;
+
+    .cross-button {
+      cursor: pointer;
+      font-size: 17px;
+      margin-top: -2px;
+    }
+  }
+
+  hr {
+    margin: 0;
+    margin-bottom: 10px;
+  }
+
+  .modal-body {
+    h5 {
+      font-size: 16px !important;
+      text-align: center;
+    }
+  }
+
+  .modal-footer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+
+    .success-button {
+      background-color: green;
+      color: white;
+      padding: 5px 20px;
+      margin-right: 10px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    .failure-button {
+      background-color: red;
+      color: white;
+      padding: 5px 20px;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+  }
+}
+
+.modal-container.show {
+  opacity: 1;
+  z-index: 100;
+  display: block;
 }
 </style>
