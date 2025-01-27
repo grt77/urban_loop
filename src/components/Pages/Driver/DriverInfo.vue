@@ -8,9 +8,10 @@
       :value="dataUrl"
     />
   </div>
-  <div>
-    <p><span class="fw-bold">Vehicle No:</span> {{ driverInfo?.vel_no }}</p>
-    <p><span class="fw-bold">Vehicle Type:</span> {{ driverInfo?.vel_type }}</p>
+  <div class="info-container">
+    <div><span class="fw-bold">Name: </span> {{ driverInfo?.driver_name  }}</div>
+    <div><span class="fw-bold">Vehicle No:</span> {{ driverInfo?.vel_no }}</div>
+    <div><span class="fw-bold">Vehicle Type:</span> {{ driverInfo?.vel_type }}</div>
   </div>
 </template>
 <script>
@@ -48,6 +49,20 @@ export default {
   .fa-circle-chevron-left {
     font-size: 35px;
     cursor: pointer;
+  }
+
+}
+
+.info-container {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  width: 100%;
+  margin-left: 22px;
+  font-family: monospace;
+
+  div {
+    margin-top: 10px;
   }
 }
 </style>

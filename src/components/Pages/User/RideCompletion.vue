@@ -13,9 +13,9 @@
     </div>
     <div class="col-xs-12 driver-info-container">
       <h6>Driver Info</h6>
-      <div><span>Name:</span> Rajesh Singh</div>
-      <div><span>Phone No:</span> +917986209818</div>
-      <div><span>Vehicle No:</span> K26A1234</div>
+      <div><span class="fw-bold">Name:</span> {{ userRideInfo?.driver_name }}</div>
+      <div><span class="fw-bold">Vehicle Type:</span> Auto</div>
+      <div><span class="fw-bold">Vehicle No:</span> {{ userRideInfo?.velc_no }}</div>
     </div>
   </div>
 </template>
@@ -34,6 +34,7 @@ export default {
   computed: {
     ...mapGetters({
       fairDetails: 'getFairDetails',
+      userRideInfo: 'getUserRideInfo',
     })
   }
 };

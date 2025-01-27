@@ -98,7 +98,7 @@ export default {
       try {
         const rideResponse = await userService.rideStatus(this.mobileNumber);
         if (rideResponse?.data.ride_status === 'completed') {
-          this.setUserRideInfo({});
+          // this.setUserRideInfo({});
           this.$router.push({ name: 'UserRideCompletion' });
         } else {
           this.rideStatus();

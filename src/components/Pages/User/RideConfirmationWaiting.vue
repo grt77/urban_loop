@@ -11,29 +11,7 @@
           <font-awesome-icon icon="rotate-right" />
           Refresh
         </button>
-        <!-- <span v-if="isLoading">Checking Driver Availability....</span>
-        <span v-else-if="!isDriverAviable && isDriverVerfied">Driver is on other Ride</span>
-        <span v-else-if="isDriverAviable && !isDriverVerfied">Driver is not verified</span>
-        <span v-else-if="!isDriverAviable && !isDriverVerfied">Driver not found</span>
-        <div v-else-if="isDriverAccepted" class="driver-acceptance-message">
-          <span>Ride Accepted. Waiting to start the ride</span>
-          <button class="btn btn-primary mt-2 m-auto" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="handleRefreshButton()">
-            <font-awesome-icon icon="rotate-right" />
-            Refresh
-          </button>
-        </div>
-        <div v-else class="driver-acceptance-message">
-          <span>Waiting for Driver's Confirmation</span>
-          <button class="btn btn-primary mt-2 m-auto" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="handleRefreshButton()">
-            <font-awesome-icon icon="rotate-right" />
-            Refresh
-          </button> -->
-          <!-- <font-awesome-icon icon="rotate-right" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="handleRefreshButton()" /> -->
-        <!-- </div> -->
       </div>
-    </div>
-    <div class="col-xs-12 form-group">
-      <!-- <button  v-if="!isLoading && isDriverAviable && isDriverVerfied" class="cancel-request-btn">Cancel Request</button> -->
     </div>
     <div class="col-xs-12">
       <img :src="images.logo" alt="urban-loop-logo" class="urban-loop-logo" />
@@ -88,7 +66,6 @@ export default {
       } else if (!this.isLoading && !this.isDriverAviable && !this.isDriverVerfied) {
         steps.push({ title: 'Driver not found' });
       } else {
-        console.log(this.isLoading, this.isDriverAccepted)
         steps.push({ title: "Waiting for Driver's Confirmation", isPending: false, isCompleted: false }),
         steps.push({ title: "Ride Accepted. Waiting to start the ride", isPending: false, isCompleted: false });
       }
@@ -136,7 +113,6 @@ export default {
           this.finalSteps = [...waitingSteps];
         }, 2000)
 
-        console.log(this.finalSteps)
       }
     },
     async createRide() {
@@ -295,7 +271,6 @@ export default {
   }
 
   .urban-loop-logo {
-    margin-top: 80px;
     width: 100%;
   }
 }
