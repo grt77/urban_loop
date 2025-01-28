@@ -54,20 +54,6 @@ export default {
       }
     }
   },
-  mounted() {
-    // this.autoProgress();
-  },
-  methods: {
-    // autoProgress() {
-    //   const interval = setInterval(() => {
-    //     if (this.currentStep < this.steps.length) {
-    //       this.currentStep++;
-    //     } else {
-    //       clearInterval(interval); // Stop at the last step
-    //     }
-    //   }, 1000); // 1-second interval
-    // },
-  },
 };
 </script>
 <style scoped>
@@ -136,7 +122,7 @@ export default {
 
 .step-line {
   width: 2px;
-  height: 50px;
+  height: 45px;
   background-color: #ccc;
   margin-top: 5px;
   transition: background-color 0.5s ease-in-out;
@@ -148,7 +134,7 @@ export default {
 
 .step-content {
   max-width: 300px;
-  margin-top: 5px;
+  margin-top: -4px;
   margin-left: -10px;
   transform: translateY(10px);
 }
