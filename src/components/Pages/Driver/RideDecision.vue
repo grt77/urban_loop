@@ -35,6 +35,12 @@
         <h4>No Rides Found!</h4>
       </div>
     </div>
+    <div class="col-xs-12 col-sm-12 d-flex justify-content-center">
+      <button class="btn btn-primary mt-2 m-auto" :class="isRefreshed ? 'rotate' : ''" title="Refresh Ride Status" @click="getRideInfo()">
+        <font-awesome-icon icon="rotate-right" />
+        Refresh
+      </button>
+    </div>
     <div class="col-xs-12">
       <img :src="images.logo" alt="Urban Loop Logo" class="urban-loop-logo" />
     </div>
